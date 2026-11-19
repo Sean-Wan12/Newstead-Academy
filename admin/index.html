@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Newstead Capacity Forecast</title>
+<title>Newstead Academy Admin</title>
 <style>
 /* Shopify-admin style: dark top bar, light grey sidebar, centred white-card page. Flat, square-ish, quick. */
 :root {
@@ -93,7 +93,7 @@ label.field { display: flex; flex-direction: column; gap: var(--s1); font-size: 
 /* Cards */
 .panel, .tile, .card, .tablebox, .gridbox { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: 0 1px 0 rgba(26,26,26,.07); }
 .panel { padding: var(--s4); }
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--s3); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--s3); }
 .tile { padding: var(--s3) var(--s4); display: flex; flex-direction: column; gap: 2px; }
 .tile b { font-size: 20px; font-weight: 650; line-height: 1.3; }
 .tile .small { font-size: 12px; }
@@ -173,6 +173,90 @@ table.list { border-collapse: collapse; width: 100%; min-width: 680px; }
 dl.facts { display: grid; grid-template-columns: auto 1fr; gap: var(--s1) var(--s3); margin: 0; font-size: 13px; }
 dl.facts dt { color: var(--muted); white-space: nowrap; } dl.facts dd { margin: 0; font-weight: 600; text-align: right; }
 .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--s3); align-items: start; }
+
+/* Page header, layout helpers */
+.phead { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: flex-end; justify-content: space-between; }
+.phead .stack-s { gap: var(--s1); }
+.sb { justify-content: space-between; }
+.three { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--s3); align-items: start; }
+label.field.inline { flex-direction: row; align-items: center; gap: var(--s2); }
+input[type="date"], input[type="month"], input[type="time"], input[type="text"], input[type="search"], input[type="email"], input[type="tel"], textarea {
+  height: var(--ctl); padding: 0 var(--s2); border-radius: var(--rs); border: 1px solid #8A8A8A; background: var(--surface); color: var(--ink); font: 400 13px/1.3 var(--body); }
+textarea { height: auto; padding: var(--s2); resize: vertical; }
+input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.btn.sm { height: 26px; padding: 0 var(--s2); font-size: 12px; }
+.btn.danger { color: var(--over); border-color: #E0B3B8; }
+.btn.danger.armed { background: var(--over); color: #FFF; border-color: var(--over); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.note { background: #EAF4FF; border: 1px solid #B4D7FF; color: #00387A; border-radius: var(--r); padding: var(--s2) var(--s3); font-size: 13px; }
+.empty { text-align: center; padding: var(--s6) var(--s4); color: var(--muted); display: flex; flex-direction: column; gap: var(--s3); align-items: center; }
+.empty b { color: var(--ink); font-size: 14px; }
+.tablebox.flat { box-shadow: none; }
+.list td.num, .list th.num { text-align: right; }
+.list tr.click { cursor: pointer; }
+.list .acts { display: flex; gap: var(--s1); justify-content: flex-end; }
+ul.tight { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: var(--s1); }
+
+/* Dashboard */
+.alerts li { display: grid; grid-template-columns: 10px 1fr auto; gap: var(--s2); align-items: baseline; padding-bottom: var(--s3); border-bottom: 1px solid var(--line); }
+.alerts li:last-child { border-bottom: 0; padding-bottom: 0; }
+.alerts .dot.info { background: #8A8A8A; }
+.alerts a.go { font-size: 13px; white-space: nowrap; }
+.feed li { display: flex; flex-direction: column; gap: 2px; padding-bottom: var(--s2); border-bottom: 1px solid var(--line); }
+.feed li:last-child { border-bottom: 0; padding-bottom: 0; }
+.feed .meta { font-size: 12px; color: var(--muted); }
+.thumbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s1); }
+.thumbs a, .thumbs span { aspect-ratio: 1; border-radius: var(--rs); overflow: hidden; background: var(--soft); display: block; }
+.thumbs img, .thumbs video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.counters { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--s2); }
+.counters div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: var(--s2) var(--s3); display: flex; flex-direction: column; }
+.counters b { font-size: 18px; font-weight: 650; }
+.counters span { font-size: 12px; color: var(--muted); }
+.navbadge { background: #FFB800; color: #1A1A1A; border-radius: 10px; font-size: 11px; font-weight: 650; padding: 0 6px; min-width: 18px; text-align: center; line-height: 18px; }
+.savenote { font-size: 12px; color: #B5B5B5; white-space: nowrap; }
+
+/* Photos */
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--s3); }
+.pcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; display: flex; flex-direction: column; cursor: pointer; text-align: left; padding: 0; font: inherit; color: inherit; }
+.pcard .pimg { aspect-ratio: 4 / 3; background: var(--soft); }
+.pcard img, .pcard video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pcard .pcap { padding: var(--s2) var(--s3); display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.bigmedia { width: 100%; max-height: 60vh; object-fit: contain; background: var(--soft); border-radius: var(--rs); }
+
+/* Sign-in kiosk */
+.kiosk { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s2); }
+.kid { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: var(--s3); display: flex; flex-direction: column; gap: 2px; cursor: pointer; text-align: left; font: inherit; color: inherit; box-shadow: 0 1px 0 rgba(26,26,26,.07); }
+.kid:hover { border-color: #8A8A8A; }
+.kid b { font-size: 16px; }
+.kid.in { border-left: 4px solid var(--open); }
+.kid.absent { opacity: .6; }
+.kid .st { font-size: 12px; color: var(--muted); }
+.kid.in .st { color: var(--open); font-weight: 600; }
+
+/* Modal */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 60; display: grid; place-items: center; padding: var(--s4); }
+.modal[hidden] { display: none; }
+.mbox { background: var(--surface); border-radius: var(--r); width: min(620px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+.mbox form, .mbox .mview { display: flex; flex-direction: column; gap: var(--s4); padding: var(--s4) var(--s5) var(--s5); }
+.mhead { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); border-bottom: 1px solid var(--line); margin: 0 calc(-1 * var(--s5)); padding: 0 var(--s5) var(--s3); }
+.mhead h2 { font-size: 16px; }
+.iconx { border: 0; background: transparent; font-size: 16px; cursor: pointer; width: 32px; height: 32px; border-radius: var(--rs); color: var(--muted); }
+.iconx:hover { background: var(--soft); }
+.fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
+.fgrid .field input, .fgrid .field select, .fgrid .field textarea { width: 100%; }
+.fgrid .wide { grid-column: 1 / -1; }
+.fgrid h3 { grid-column: 1 / -1; margin-top: var(--s2); font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+label.check { display: flex; align-items: center; gap: var(--s2); font-size: 13px; }
+.mfoot { display: flex; justify-content: space-between; gap: var(--s2); align-items: center; border-top: 1px solid var(--line); margin: 0 calc(-1 * var(--s5)); padding: var(--s3) var(--s5) 0; }
+@media (max-width: 560px) { .fgrid { grid-template-columns: 1fr; } }
+
+/* Toast */
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #303030; color: #FFF; padding: var(--s2) var(--s4); border-radius: var(--r); font-size: 13px; z-index: 70; box-shadow: 0 4px 16px rgba(0,0,0,.2); max-width: calc(100% - 32px); }
+.toast.err { background: var(--over); }
+.toast[hidden] { display: none; }
+
+.list.compact { min-width: 0; }
+dl.facts.left dd { text-align: left; font-weight: 500; }
 </style>
 </head>
 <body>
@@ -182,15 +266,15 @@ dl.facts dt { color: var(--muted); white-space: nowrap; } dl.facts dd { margin: 
     <div class="brand"><span class="logo">N</span>Newstead Academy <span class="admin">Admin</span></div>
   </div>
   <div class="search" aria-hidden="true">Search</div>
-  <div class="centre"><span class="name">Newstead Academy Childcare, Richmond Hill</span><span class="av" aria-hidden="true">NA</span></div>
+  <div class="centre"><span class="savenote" id="saveNote">Connecting…</span><span class="name">Newstead Academy Childcare, Richmond Hill</span><span class="av" aria-hidden="true">NA</span></div>
 </header>
 <nav class="rail" id="rail" aria-label="Main menu"><ul class="menu" id="menu"></ul></nav>
 <div class="scrim" id="scrim"></div>
 <main>
   <div class="page">
-      <section class="view stack" id="view-dashboard">
+      <section class="view stack" id="view-overview" hidden>
         <div class="stack-s">
-          <h1>Newstead today</h1>
+          <h1>Enrollment overview</h1>
           <p class="lead" id="dashLead"></p>
         </div>
         <div class="tiles" id="tiles"></div>
@@ -294,19 +378,152 @@ dl.facts dt { color: var(--muted); white-space: nowrap; } dl.facts dd { margin: 
         </div>
       </section>
 
-      <section class="view stack" id="view-soon" hidden>
-        <div class="stack-s">
-          <h1 id="soonTitle"></h1>
-          <p class="lead" id="soonText"></p>
+      <section class="view stack" id="view-dashboard">
+        <div class="phead">
+          <div class="stack-s"><h1>Dashboard</h1><p class="lead" id="homeLead"></p></div>
+          <label class="field inline" for="homeDate">Date <input type="date" id="homeDate" data-day></label>
+        </div>
+        <div class="tiles" id="homeTiles"></div>
+        <div class="two">
+          <div class="panel stack-s">
+            <div class="row sb"><h2>Needs attention</h2><span class="pill" id="homeAlertCount"></span></div>
+            <ul class="plain alerts" id="homeAlerts"></ul>
+          </div>
+          <div class="panel stack-s">
+            <div class="row sb"><h2>Attendance</h2><a href="#actions">Take attendance</a></div>
+            <div id="homeAtt"></div>
+          </div>
+        </div>
+        <div class="three">
+          <div class="panel stack-s"><div class="row sb"><h2>Activity</h2><a href="#actions">Add an entry</a></div><ul class="plain feed" id="homeActivity"></ul></div>
+          <div class="panel stack-s"><div class="row sb"><h2>Recent messages</h2><a href="#messaging">All messages</a></div><ul class="plain feed" id="homeMsgs"></ul></div>
+          <div class="panel stack-s"><div class="row sb"><h2>Recent photos</h2><a href="#photos">All photos</a></div><div id="homePhotos"></div></div>
+        </div>
+        <div class="two">
+          <div class="panel stack-s"><div class="row sb"><h2>Coming up</h2><a href="#calendars">Calendar</a></div><ul class="plain feed" id="homeEvents"></ul></div>
+          <div class="panel stack-s"><div class="row sb"><h2>Menu for the day</h2><a href="#calendars">Weekly menu</a></div><div id="homeMenu"></div></div>
+        </div>
+      </section>
+
+      <section class="view stack" id="view-waitlist" hidden>
+        <div class="phead">
+          <div class="stack-s"><h1>Registration and waitlist</h1><p class="lead">Families waiting for a space, matched to the openings the capacity forecast finds.</p></div>
+          <button class="btn btn-primary" type="button" data-act="wl-add">Add family</button>
+        </div>
+        <div class="counters" id="wlCounters"></div>
+        <div class="row" id="wlFilter"></div>
+        <div class="tablebox" id="wlTable"></div>
+        <p class="muted small">"Earliest space" is the first month the forecast has an open space in a room for the child's age, from their wanted start date. It doesn't hold spaces for other waiting families, so two families can show the same opening. When a family enrols, add the child in Lillio and the forecast picks them up from the next export.</p>
+      </section>
+
+      <section class="view stack" id="view-actions" hidden>
+        <div class="phead">
+          <div class="stack-s"><h1>Classroom actions</h1><p class="lead">Attendance and the daily log for each room.</p></div>
+          <label class="field inline" for="actDate">Date <input type="date" id="actDate" data-day></label>
+        </div>
+        <div class="row" id="actRooms"></div>
+        <div class="tiles" id="actTiles"></div>
+        <div class="tablebox" id="actTable"></div>
+        <div class="panel stack-s">
+          <div class="row sb"><h2>Daily log</h2><button class="btn" type="button" data-act="log-add">Add entry</button></div>
+          <ul class="plain feed" id="actLog"></ul>
+        </div>
+      </section>
+
+      <section class="view stack" id="view-photos" hidden>
+        <div class="phead">
+          <div class="stack-s"><h1>Photos and videos</h1><p class="lead">The centre's photo and video journal, by room.</p></div>
+          <button class="btn btn-primary" type="button" data-act="ph-add" id="phAddBtn">Upload</button>
+        </div>
+        <p class="note" id="phNote" hidden></p>
+        <div class="row" id="phRooms"></div>
+        <div id="phGrid"></div>
+      </section>
+
+      <section class="view stack" id="view-messaging" hidden>
+        <div class="phead">
+          <div class="stack-s"><h1>Messaging</h1><p class="lead">Write and keep a record of messages to families.</p></div>
+          <button class="btn btn-primary" type="button" data-act="msg-add">New message</button>
+        </div>
+        <p class="note">This page saves each message and the families it's for, but it can't send email or texts yet. After saving, copy the message and the families' email addresses into your email.</p>
+        <div class="tablebox" id="msgTable"></div>
+      </section>
+
+      <section class="view stack" id="view-contacts" hidden>
+        <div class="phead">
+          <div class="stack-s"><h1>Contacts</h1><p class="lead">Parents, guardians, emergency contacts and who may pick each child up.</p></div>
+          <label class="field inline" for="ctSearch">Search <input type="search" id="ctSearch" placeholder="Initials or name"></label>
+        </div>
+        <div class="row" id="ctRooms"></div>
+        <div class="tablebox" id="ctTable"></div>
+      </section>
+
+      <section class="view stack" id="view-billing" hidden>
+        <div class="phead">
+          <div class="stack-s"><h1>Billing and subsidies</h1><p class="lead">Monthly invoices, subsidies and payments.</p></div>
+          <div class="row"><label class="field inline" for="billMonth">Month <input type="month" id="billMonth"></label><button class="btn" type="button" data-act="bill-fees">Fees</button></div>
+        </div>
+        <div class="tiles" id="billTiles"></div>
+        <div id="billBody"></div>
+      </section>
+
+      <section class="view stack" id="view-calendars" hidden>
+        <div class="phead">
+          <div class="stack-s"><h1>Menus and calendars</h1><p class="lead">The weekly meal menu and the centre calendar.</p></div>
         </div>
         <div class="panel stack-s">
-          <h2>Not built yet</h2>
-          <p>This section is in the menu so the layout matches what your team already knows. It has no data or tools behind it in this version.</p>
-          <div class="row"><a class="btn btn-primary" href="#forecast">Go to the capacity forecast</a></div>
+          <div class="row sb">
+            <div class="row"><button class="btn" type="button" data-act="wk-prev" aria-label="Previous week">‹</button><h2 id="wkLabel"></h2><button class="btn" type="button" data-act="wk-next" aria-label="Next week">›</button></div>
+            <div class="row"><button class="btn" type="button" data-act="wk-copy">Copy last week</button><button class="btn btn-primary" type="button" data-act="wk-edit">Edit menu</button></div>
+          </div>
+          <div class="tablebox flat" id="wkTable"></div>
+        </div>
+        <div class="panel stack-s">
+          <div class="row sb"><h2>Calendar</h2><button class="btn btn-primary" type="button" data-act="ev-add">Add event</button></div>
+          <div id="evList"></div>
+        </div>
+      </section>
+
+      <section class="view stack" id="view-signin" hidden>
+        <div class="phead">
+          <div class="stack-s"><h1>Parent sign-in</h1><p class="lead" id="siLead"></p></div>
+          <label class="field inline" for="siSearch">Find a child <input type="search" id="siSearch" placeholder="Initials"></label>
+        </div>
+        <div class="row" id="siRooms"></div>
+        <div class="kiosk" id="siGrid"></div>
+      </section>
+
+      <section class="view stack" id="view-configuration" hidden>
+        <div class="phead">
+          <div class="stack-s"><h1>Logins and configuration</h1><p class="lead">Centre details, the staff directory, and who can use this admin.</p></div>
+        </div>
+        <div class="two">
+          <div class="panel stack-s"><div class="row sb"><h2>Centre details</h2><button class="btn" type="button" data-act="centre-edit">Edit</button></div><div id="centreFacts"></div></div>
+          <div class="panel stack-s">
+            <h2>Who can sign in</h2>
+            <p>Access to this admin is set by sharing it from its page on claude.ai, not from here. Use <b>Share</b> and choose a level for each person:</p>
+            <ul class="tight">
+              <li><b>Contributor</b>: takes attendance, adds log entries, waitlist families, contacts, invoices and events.</li>
+              <li><b>Editor</b>: everything a Contributor can do, and can also change the page itself.</li>
+              <li><b>Viewer</b>: can look but not change anything.</li>
+            </ul>
+            <p class="muted small" id="saveMode"></p>
+          </div>
+        </div>
+        <div class="panel stack-s">
+          <div class="row sb"><h2>Staff directory</h2><button class="btn btn-primary" type="button" data-act="staff-add">Add staff member</button></div>
+          <div class="tablebox flat" id="staffTable"></div>
+        </div>
+        <div class="panel stack-s">
+          <h2>Back up your data</h2>
+          <p>Copies everything entered on these pages (waitlist, contacts, attendance, billing and so on) as text you can paste into a file.</p>
+          <div class="row"><button class="btn" type="button" data-act="backup">Copy all data</button><span class="muted" id="backupMsg" role="status"></span></div>
         </div>
       </section>
   </div>
 </main>
+<div class="modal" id="modal" hidden><div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mTitle"><form id="mForm" novalidate></form><div class="mview" id="mView" hidden></div></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <aside class="drawer" id="drawer" aria-label="Details for the selected box" aria-hidden="true"></aside>
 
@@ -447,30 +664,31 @@ function save() { try { localStorage.setItem('nf-opts', JSON.stringify(opts)); }
 
 /* Menu: built sections link to a view; planned ones open the "not built yet" page */
 const MENU = [
-  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'dashboard', label: 'Dashboard', badge: true },
   { group: 'Manage enrollment', items: [
-    { id: 'forecast', label: 'Capacity forecast', tag: 'new' },
+    { id: 'overview', label: 'Enrollment overview' },
+    { id: 'forecast', label: 'Capacity forecast' },
     { id: 'children', label: 'Who moves next' },
     { id: 'rosters', label: 'Classroom rosters' },
-    { id: 'waitlist', label: 'Registration and waitlist', soon: 'Applications, the waiting list, and matching waiting families to the openings the forecast finds.' }
+    { id: 'waitlist', label: 'Registration and waitlist' }
   ] },
   { id: 'rooms', label: 'Classrooms' },
-  { id: 'actions', label: 'Classroom actions', soon: 'Daily check-in, attendance, naps, meals and activity entries for each room.' },
-  { id: 'photos', label: 'Photos and videos', soon: 'The photo and video journal shared with families.' },
-  { id: 'messaging', label: 'Messaging', soon: 'Messages between the centre, educators and families.' },
-  { id: 'contacts', label: 'Contacts', soon: 'Parent, guardian and emergency contact details.' },
-  { id: 'billing', label: 'Billing and subsidies', soon: 'Invoices, payments and subsidy tracking.' },
-  { id: 'calendars', label: 'Menus and calendars', soon: 'Meal menus and the centre calendar.' },
+  { id: 'actions', label: 'Classroom actions' },
+  { id: 'photos', label: 'Photos and videos' },
+  { id: 'messaging', label: 'Messaging' },
+  { id: 'contacts', label: 'Contacts' },
+  { id: 'billing', label: 'Billing and subsidies' },
+  { id: 'calendars', label: 'Menus and calendars' },
   { div: true },
   { id: 'reports', label: 'Reports' },
-  { id: 'signin', label: 'Parent sign-in', soon: 'Drop-off and pick-up sign-in for families.' },
-  { id: 'configuration', label: 'Logins and configuration', soon: 'Staff logins, centre details and system options.' },
+  { id: 'signin', label: 'Parent sign-in' },
+  { id: 'configuration', label: 'Logins and configuration' },
   { id: 'help', label: 'Help' }
 ];
 const FLAT = MENU.filter(m => !m.div).flatMap(m => m.items || [m]);
 const BUILT = FLAT.filter(m => !m.soon).map(m => m.id);
 function renderMenu(cur) {
-  const link = m => '<li><a href="#' + m.id + '"' + (m.id === cur ? ' aria-current="page"' : '') + '><span>' + esc(m.label) + '</span>' + (m.tag ? '<span class="tag new">New</span>' : m.soon ? '<span class="tag">Soon</span>' : '') + '</a></li>';
+  const link = m => '<li><a href="#' + m.id + '"' + (m.id === cur ? ' aria-current="page"' : '') + '><span>' + esc(m.label) + '</span>' + (m.badge ? '<span class="navbadge" id="navBadge" hidden></span>' : '') + '</a></li>';
   $('menu').innerHTML = MENU.map(m => m.div ? '<li class="div" role="separator"></li>' : m.items
     ? '<li><button type="button" id="grpBtn" aria-expanded="' + groupOpen + '" aria-controls="grpList"><span>' + esc(m.group) + '</span><span class="caret" aria-hidden="true">›</span></button><ul class="sub" id="grpList"' + (groupOpen ? '' : ' hidden') + '>' + m.items.map(link).join('') + '</ul></li>'
     : link(m)).join('');
@@ -480,6 +698,7 @@ function run() {
   F = forecast(DATA, { horizon: 24, moveAge: +opts.moveAge, leaveAge: +opts.leaveAge, caps: opts.caps });
   renderDashboard(); renderForecastHead(); renderGrid(); renderAssume(); renderChildren(); renderRosters(); renderRooms(); renderReport();
   if (sel) openCell(sel.rid, sel.mi, true);
+  if (typeof refresh === 'function') refresh();
 }
 
 function facts() {
@@ -645,13 +864,13 @@ function renderReport() {
 
 function route() {
   let id = location.hash.slice(1); if (!FLAT.some(m => m.id === id)) id = 'dashboard';
-  const m = FLAT.find(x => x.id === id), view = m.soon ? 'soon' : id;
-  document.querySelectorAll('.view').forEach(v => { v.hidden = v.id !== 'view-' + view; });
-  if (m.soon) { $('soonTitle').textContent = m.label; $('soonText').textContent = m.soon; }
+  const m = FLAT.find(x => x.id === id);
+  document.querySelectorAll('.view').forEach(v => { v.hidden = v.id !== 'view-' + id; });
   if ((MENU.find(x => x.items).items).some(x => x.id === id)) groupOpen = true;
   renderMenu(id); document.title = m.label + ' · Newstead Academy Admin';
-  setRail(false);
-  if (view !== 'forecast' && sel) closeCell();
+  setRail(false); closeModal();
+  if (id !== 'forecast' && sel) closeCell();
+  CUR = id; refresh();
   window.scrollTo(0, 0);
 }
 
@@ -668,7 +887,7 @@ document.addEventListener('click', e => {
     try { navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); } catch (err) { done(false); }
   }
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (sel) closeCell(); setRail(false); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!$('modal').hidden) { closeModal(); return; } if (sel) closeCell(); setRail(false); } });
 function setRail(on) {
   $('rail').classList.toggle('on', on); $('scrim').classList.toggle('on', on);
   $('menuBtn').setAttribute('aria-expanded', on); $('menuBtn').textContent = on ? '✕' : '☰';
@@ -684,6 +903,588 @@ document.addEventListener('change', e => {
 $('reset').onclick = () => { opts = JSON.parse(JSON.stringify(DEF)); save(); syncControls(); run(); };
 function syncControls() { $('moveAge').value = opts.moveAge; $('leaveAge').value = opts.leaveAge; }
 window.addEventListener('hashchange', route);
+</script>
+<script>
+/* ===== Shared data store: the artifact database when available, this browser otherwise ===== */
+let CUR = 'dashboard', rafPending = false;
+const STORE = { mode: 'loading', db: null, assets: null, live: false };
+const LOCAL_KEY = 'na-admin-db';
+let LOCAL = {}; try { LOCAL = JSON.parse(localStorage.getItem(LOCAL_KEY) || '{}') || {}; } catch (e) { LOCAL = {}; }
+function saveLocal() { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(LOCAL)); } catch (e) {} }
+const watchers = [];
+function localRead(w) {
+  if (w.kind === 'doc') return LOCAL[w.path] || null;
+  const m = {}, pre = w.path + '/';
+  Object.keys(LOCAL).forEach(p => { if (p.startsWith(pre) && !p.slice(pre.length).includes('/')) m[p.slice(pre.length)] = LOCAL[p]; });
+  return m;
+}
+function attach(w) {
+  if (w.dead) return;
+  if (STORE.mode === 'db') {
+    const ref = w.kind === 'col' ? STORE.db.collection(w.path) : STORE.db.doc(w.path);
+    w.unsub = ref.onSnapshot(snap => {
+      if (w.kind === 'col') { const m = {}; snap.docs.forEach(d => { m[d.id] = d.data(); }); w.cb(m); }
+      else w.cb(snap.exists ? snap.data() : null);
+      if (!snap.metadata.fromCache) markLive();
+    }, err => { markLive(); toast('Some saved data could not be loaded (' + (err && err.code || 'error') + ').', true); });
+  } else w.cb(localRead(w));
+}
+function watch(kind, path, cb) {
+  const w = { kind, path, cb, unsub: null, dead: false };
+  watchers.push(w); if (STORE.mode !== 'loading') attach(w);
+  return () => { w.dead = true; if (w.unsub) w.unsub(); const i = watchers.indexOf(w); if (i >= 0) watchers.splice(i, 1); };
+}
+function localNotify() { watchers.forEach(w => w.cb(localRead(w))); }
+const chains = {};
+function queue(path, fn) { const p = (chains[path] || Promise.resolve()).then(fn, fn); chains[path] = p.catch(() => {}); return p; }
+function isObj(v) { return v && typeof v === 'object' && !Array.isArray(v); }
+function deepMerge(a, b) { const o = Object.assign({}, a || {}); Object.keys(b).forEach(k => { o[k] = isObj(b[k]) && isObj(o[k]) ? deepMerge(o[k], b[k]) : b[k]; }); return o; }
+function writeFail(e) {
+  const c = e && e.code;
+  toast(c === 'quota_exceeded' ? 'The database is full. Delete old entries, then try again.'
+    : c === 'invalid_argument' ? 'That change was not saved. You may only have view access: ask the owner to make you a Contributor.'
+    : 'That change was not saved. Check your connection and try again.', true);
+  return false;
+}
+function put(path, data) {
+  if (STORE.mode !== 'db') { LOCAL[path] = JSON.parse(JSON.stringify(data)); saveLocal(); localNotify(); return Promise.resolve(true); }
+  return queue(path, () => STORE.db.doc(path).set(data)).then(() => true, writeFail);
+}
+function merge(path, data) {
+  if (STORE.mode !== 'db') { LOCAL[path] = deepMerge(LOCAL[path], data); saveLocal(); localNotify(); return Promise.resolve(true); }
+  return queue(path, async () => {
+    try { await STORE.db.doc(path).update(data); }
+    catch (e) { if (e && e.code === 'invalid_argument') { const s = await STORE.db.doc(path).get(); if (!s.exists) return STORE.db.doc(path).set(data); } throw e; }
+  }).then(() => true, writeFail);
+}
+function remove(path) {
+  if (STORE.mode !== 'db') { delete LOCAL[path]; saveLocal(); localNotify(); return Promise.resolve(true); }
+  return queue(path, () => STORE.db.doc(path).delete()).then(() => true, writeFail);
+}
+let liveTimer = null;
+function markLive() { STORE.live = true; if (liveTimer) { clearTimeout(liveTimer); liveTimer = null; } setSaveNote(); }
+function setSaveNote() {
+  const t = STORE.mode === 'loading' ? 'Connecting…' : STORE.mode === 'db' ? (STORE.live ? 'Saved for everyone' : 'Loading saved data…') : 'Saved in this browser only';
+  if ($('saveNote')) $('saveNote').textContent = t;
+  if ($('saveMode')) $('saveMode').textContent = STORE.mode === 'db'
+    ? 'Everything entered here is saved in this admin\'s shared database, so everyone it is shared with sees the same data.'
+    : 'Right now entries are saved in this browser only. Open the admin from its claude.ai page to save them for everyone.';
+  document.querySelectorAll('[data-needs-db]').forEach(el => { el.hidden = STORE.mode === 'db'; });
+}
+(async function initStore() {
+  let db = null, assets = null;
+  try { if (window.claude && typeof window.claude.use === 'function') { db = await window.claude.use('db'); assets = await window.claude.use('assets'); } } catch (e) { db = null; }
+  STORE.db = db; STORE.assets = assets || null; STORE.mode = db ? 'db' : 'local';
+  if (db) liveTimer = setTimeout(() => { liveTimer = null; if (!STORE.live) toast('Saved data can\'t be reached yet. What you see may be out of date.', true); }, 10000);
+  setSaveNote();
+  watchers.slice().forEach(attach);
+  refresh();
+})();
+
+/* ===== Data the pages share ===== */
+const D = { waitlist: {}, contacts: {}, messages: {}, photos: {}, events: {}, staff: {}, settings: {}, menus: {}, billing: {}, att: null, logs: null };
+['waitlist', 'contacts', 'messages', 'photos', 'events', 'staff', 'settings', 'menus', 'billing'].forEach(c => watch('col', c, m => { D[c] = m; refresh(); }));
+function todayISO(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function nowHM() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+let DAY = todayISO(), dayUnsubs = [];
+function watchDay() {
+  dayUnsubs.forEach(u => u());
+  dayUnsubs = [watch('doc', 'attendance/' + DAY, v => { D.att = v; refresh(); }), watch('doc', 'logs/' + DAY, v => { D.logs = v; refresh(); })];
+}
+watchDay();
+function setDay(d) { if (!d || d === DAY) return; DAY = d; D.att = null; D.logs = null; watchDay(); refresh(); }
+
+/* ===== Small helpers ===== */
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const rows = m => Object.keys(m || {}).map(id => Object.assign({ id }, m[id]));
+const ENROLLED = () => DATA.kids.filter(k => k.r);
+const roomById = id => ROOMS.find(r => r.id === id);
+const kidById = id => kidsById[id];
+const money = n => '$' + (Math.round((+n || 0) * 100) / 100).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function fmtDate(iso, withDay) {
+  if (!iso) return '';
+  const p = iso.split('-').map(Number);
+  if (p.length < 3) return MONTHS[p[1] - 1] + ' ' + p[0];
+  const d = new Date(p[0], p[1] - 1, p[2]);
+  return (withDay ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()] + ' ' : '') + p[2] + ' ' + MONTHS[p[1] - 1] + ' ' + p[0];
+}
+function fmtWhen(ts) { if (!ts) return ''; const d = new Date(ts); return fmtDate(todayISO(d)) + ', ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+function addDays(iso, n) { const p = iso.split('-').map(Number), d = new Date(p[0], p[1] - 1, p[2] + n); return todayISO(d); }
+function mondayOf(iso) { const p = iso.split('-').map(Number), d = new Date(p[0], p[1] - 1, p[2]); const dow = (d.getDay() + 6) % 7; return addDays(iso, -dow); }
+function isWeekend(iso) { const p = iso.split('-').map(Number), d = new Date(p[0], p[1] - 1, p[2]).getDay(); return d === 0 || d === 6; }
+const ROOM_OPTS = () => ROOMS.map(r => [r.id, r.name]);
+function roomButtons(el, cur, attr, withAll) {
+  const opts = (withAll ? [['all', 'All rooms']] : []).concat(ROOM_OPTS());
+  $(el).innerHTML = opts.map(o => '<button type="button" class="btn sm" data-' + attr + '="' + o[0] + '" aria-pressed="' + (cur === o[0]) + '">' + esc(o[1]) + '</button>').join('');
+}
+let toastTimer = null;
+function toast(msg, err) { const t = $('toast'); t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, err ? 6000 : 2500); }
+function copyText(text, statusEl) {
+  const done = ok => { const m = ok ? 'Copied.' : 'Copying is blocked here. Select the text and copy it instead.'; if (statusEl && $(statusEl)) $(statusEl).textContent = m; else toast(m, !ok); };
+  try { navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); } catch (e) { done(false); }
+}
+
+/* ===== Modal forms ===== */
+let MODAL = null;
+function fieldHtml(v) {
+  return fd => {
+    if (fd.type === 'heading') return '<h3>' + esc(fd.label) + '</h3>';
+    const id = 'f-' + fd.k, val = v[fd.k] != null ? v[fd.k] : (fd.def != null ? fd.def : ''), req = fd.req ? ' required' : '', wide = fd.wide ? ' wide' : '';
+    if (fd.type === 'checkbox') return '<label class="check' + wide + '"><input type="checkbox" id="' + id + '"' + (val ? ' checked' : '') + '> ' + esc(fd.label) + '</label>';
+    let input;
+    if (fd.type === 'select') input = '<select id="' + id + '"' + req + '>' + fd.options.map(op => { const ov = Array.isArray(op) ? op[0] : op, ol = Array.isArray(op) ? op[1] : op; return '<option value="' + esc(ov) + '"' + (String(ov) === String(val) ? ' selected' : '') + '>' + esc(ol) + '</option>'; }).join('') + '</select>';
+    else if (fd.type === 'textarea') input = '<textarea id="' + id + '" rows="' + (fd.rows || 4) + '"' + req + '>' + esc(val) + '</textarea>';
+    else if (fd.type === 'file') input = '<input type="file" id="' + id + '" accept="' + (fd.accept || '') + '"' + req + '>';
+    else input = '<input type="' + (fd.type || 'text') + '" id="' + id + '" value="' + esc(val) + '"' + (fd.min != null ? ' min="' + fd.min + '"' : '') + (fd.step ? ' step="' + fd.step + '"' : '') + (fd.ph ? ' placeholder="' + esc(fd.ph) + '"' : '') + req + '>';
+    return '<label class="field' + wide + '" for="' + id + '">' + esc(fd.label) + (fd.hint ? ' <span class="muted small">' + esc(fd.hint) + '</span>' : '') + input + '</label>';
+  };
+}
+function openForm(o) {
+  MODAL = o;
+  $('mView').hidden = true; $('mForm').hidden = false;
+  $('mForm').innerHTML = '<div class="mhead"><h2 id="mTitle">' + esc(o.title) + '</h2><button type="button" class="iconx" data-close aria-label="Close">✕</button></div>' +
+    (o.intro ? '<p class="muted">' + esc(o.intro) + '</p>' : '') +
+    '<div class="fgrid">' + o.fields.map(fieldHtml(o.values || {})).join('') + '</div>' +
+    '<div class="mfoot">' + (o.onDelete ? '<button type="button" class="btn danger" data-del>' + esc(o.deleteLabel || 'Delete') + '</button>' : '<span></span>') +
+    '<div class="row"><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn btn-primary">' + esc(o.submit || 'Save') + '</button></div></div>';
+  $('modal').hidden = false;
+  const first = $('mForm').querySelector('input:not([type=checkbox]),select,textarea'); if (first) first.focus();
+}
+function openView(title, html, actions) {
+  MODAL = { view: true, actions: actions || {} };
+  $('mForm').hidden = true; $('mView').hidden = false;
+  $('mView').innerHTML = '<div class="mhead"><h2 id="mTitle">' + esc(title) + '</h2><button type="button" class="iconx" data-close aria-label="Close">✕</button></div>' + html;
+  $('modal').hidden = false;
+}
+function closeModal() { $('modal').hidden = true; MODAL = null; }
+$('mForm').addEventListener('submit', async e => {
+  e.preventDefault(); const o = MODAL; if (!o || o.view) return;
+  const v = {};
+  o.fields.forEach(fd => { const el = $('f-' + fd.k); if (!el) return; v[fd.k] = fd.type === 'checkbox' ? el.checked : fd.type === 'number' ? (el.value === '' ? null : +el.value) : fd.type === 'file' ? (el.files[0] || null) : el.value.trim(); });
+  const btn = $('mForm').querySelector('[type=submit]'); btn.disabled = true;
+  let ok = true; try { ok = await o.onSave(v); } catch (err) { ok = false; toast(err && err.message ? err.message : 'That did not save.', true); }
+  btn.disabled = false;
+  if (ok !== false) closeModal();
+});
+document.addEventListener('click', async e => {
+  if (e.target.closest('[data-close]') || e.target.id === 'modal') { closeModal(); return; }
+  const delBtn = e.target.closest('[data-del]');
+  if (delBtn && MODAL && MODAL.onDelete) {
+    if (!delBtn.classList.contains('armed')) { delBtn.classList.add('armed'); delBtn.textContent = 'Click again to delete'; return; }
+    const o = MODAL; const ok = await o.onDelete(); if (ok !== false) closeModal(); return;
+  }
+  const va = e.target.closest('[data-vact]');
+  if (va && MODAL && MODAL.actions && MODAL.actions[va.dataset.vact]) { MODAL.actions[va.dataset.vact](va); return; }
+}, true);
+
+/* ===== Attendance helpers ===== */
+const attRec = id => (D.att && D.att.kids && D.att.kids[id]) || null;
+function attStatus(id) { const r = attRec(id); if (!r) return 'expected'; if (r.absent) return 'absent'; if (r.in && r.out) return 'out'; if (r.in) return 'in'; return 'expected'; }
+function closureOn(iso) { return rows(D.events).find(ev => (ev.type === 'Closure' || ev.type === 'Holiday') && ev.date <= iso && (ev.end || ev.date) >= iso); }
+const isOpenDay = iso => !isWeekend(iso) && !closureOn(iso);
+function dayCounts(kids) {
+  const c = { in: 0, out: 0, absent: 0, expected: 0 };
+  kids.forEach(k => c[attStatus(k.id)]++);
+  return c;
+}
+const ST_TEXT = { in: 'Signed in', out: 'Signed out', absent: 'Absent', expected: 'Not arrived' };
+const ST_PILL = { in: 'open', out: '', absent: 'wait', expected: '' };
+function stPill(id) { const s = attStatus(id), r = attRec(id); return '<span class="pill ' + ST_PILL[s] + '">' + ST_TEXT[s] + (s === 'in' ? ' ' + r.in : s === 'out' ? ' ' + r.out : '') + '</span>'; }
+const logEntries = () => rows(D.logs && D.logs.entries).filter(x => !x.deleted).sort((a, b) => (b.time || '').localeCompare(a.time || '') || (b.at || 0) - (a.at || 0));
+
+/* ===== Waitlist matching ===== */
+const WL_STATUS = ['Waiting', 'Offered', 'Accepted', 'Enrolled', 'Declined'];
+function natural(ageMonths) { if (ageMonths < 18) return null; if (ageMonths < 30) return 'Toddler'; if (ageMonths < 48) return 'Preschool'; return 'Kindergarten'; }
+function ageAt(dob, y, m) { const p = dob.split('-').map(Number); return (y - p[0]) * 12 + (m - p[1]) - ((p[2] || 1) > 1 ? 1 : 0); }
+function earliestSpace(w) {
+  if (!w.dob || !F) return null;
+  const from = w.start || F.months[0].key;
+  for (const s of F.months) {
+    if (s.key < from) continue;
+    const a = ageAt(w.dob, s.y, s.m), g = natural(a);
+    if (!g) continue;
+    const room = F.rooms.find(r => r.runsAs === g && a >= RULES[r.lic].minM && a < RULES[r.lic].maxM && s.rooms[r.id].open > 0);
+    if (room) return { label: s.label, key: s.key, room: room.name };
+  }
+  return null;
+}
+function groupAtStart(w) {
+  if (!w.dob) return '';
+  const st = (w.start || todayISO().slice(0, 7)).split('-').map(Number), a = ageAt(w.dob, st[0], st[1]), g = natural(a);
+  return g ? g + ' (' + fmtAge(Math.max(0, a)) + ')' : 'Under 18 months (' + fmtAge(Math.max(0, a)) + ')';
+}
+
+/* ===== Notifications ===== */
+function alertsList() {
+  const out = [], m0 = F.months[0], today = todayISO(), isToday = DAY === today;
+  F.rooms.filter(r => m0.rooms[r.id].open < 0).forEach(r => out.push({ lv: 'over', t: r.name + ' has ' + m0.rooms[r.id].n + ' children for ' + r.cap + ' licensed spaces', d: 'Check Lillio for a child who has left or moved without an end date.', href: '#rosters' }));
+  const inc = logEntries().filter(x => x.type === 'Incident');
+  if (inc.length) out.push({ lv: 'over', t: inc.length + (inc.length === 1 ? ' incident report' : ' incident reports') + ' on ' + fmtDate(DAY), d: 'Make sure families have been told and any serious occurrence is reported.', href: '#actions' });
+  if (isToday && isOpenDay(DAY)) {
+    const notStarted = F.rooms.filter(r => !ENROLLED().some(k => k.r === r.id && attRec(k.id)));
+    if (notStarted.length) out.push({ lv: 'wait', t: 'Attendance not started in ' + notStarted.length + (notStarted.length === 1 ? ' room' : ' rooms'), d: notStarted.map(r => r.name).join(', '), href: '#actions' });
+    const h = new Date().getHours(), still = ENROLLED().filter(k => attStatus(k.id) === 'in').length;
+    if (h >= 18 && still) out.push({ lv: 'over', t: still + (still === 1 ? ' child is' : ' children are') + ' still signed in after 6 pm', d: 'Sign them out or check they have been picked up.', href: '#signin' });
+  }
+  const wl = rows(D.waitlist), offered = wl.filter(w => w.status === 'Offered');
+  if (offered.length) out.push({ lv: 'wait', t: offered.length + (offered.length === 1 ? ' family has' : ' families have') + ' an offer waiting for an answer', d: offered.map(w => w.child).join(', '), href: '#waitlist' });
+  const matchable = wl.filter(w => w.status === 'Waiting').filter(w => { const e = earliestSpace(w); return e && e.key <= F.months[1].key; });
+  if (matchable.length) out.push({ lv: 'info', t: matchable.length + (matchable.length === 1 ? ' waiting family' : ' waiting families') + ' could be offered a space now', d: 'The forecast shows an opening for their child\'s age this month or next.', href: '#waitlist' });
+  const firstWait = F.months.find(s => F.rooms.some(r => s.rooms[r.id].waiting));
+  if (firstWait) out.push({ lv: 'wait', t: 'Toddlers start waiting for preschool spaces in ' + firstWait.label, d: 'They reach 30 months with no preschool space to move into.', href: '#forecast' });
+  const mon = today.slice(0, 7), bill = D.billing[mon];
+  if (bill && bill.lines) {
+    const unpaid = rows(bill.lines).filter(l => !l.paid), owed = unpaid.reduce((s, l) => s + Math.max(0, (+l.fee || 0) - (+l.subsidy || 0)), 0);
+    if (unpaid.length) out.push({ lv: 'wait', t: unpaid.length + ' unpaid ' + (unpaid.length === 1 ? 'invoice' : 'invoices') + ' for ' + fmtDate(mon), d: money(owed) + ' still owed by families.', href: '#billing' });
+  } else out.push({ lv: 'info', t: 'Invoices for ' + fmtDate(mon) + ' have not been created', d: 'Set your fees, then create the month\'s invoices.', href: '#billing' });
+  const noContact = ENROLLED().filter(k => { const c = D.contacts['c' + k.id]; return !c || !(c.g1name || c.ename); });
+  if (noContact.length) out.push({ lv: 'info', t: noContact.length + ' of ' + ENROLLED().length + ' children have no contacts on file', d: 'Add parents and an emergency contact for each child.', href: '#contacts' });
+  const soon = rows(D.events).filter(ev => (ev.type === 'Closure' || ev.type === 'Holiday') && (ev.end || ev.date) >= today && ev.date <= addDays(today, 14));
+  soon.forEach(ev => out.push({ lv: 'info', t: (ev.type === 'Closure' ? 'Centre closed: ' : 'Holiday: ') + ev.title, d: fmtDate(ev.date, true) + (ev.end && ev.end !== ev.date ? ' to ' + fmtDate(ev.end, true) : ''), href: '#calendars' }));
+  if (!D.menus[mondayOf(today)]) out.push({ lv: 'info', t: 'No menu for this week', d: 'Add the week\'s snacks and lunches.', href: '#calendars' });
+  return out;
+}
+
+/* ===== Dashboard ===== */
+function renderHome() {
+  const kids = ENROLLED(), c = dayCounts(kids), m0 = F.months[0], open0 = F.rooms.reduce((s, r) => s + Math.max(0, m0.rooms[r.id].open), 0);
+  const waiting = rows(D.waitlist).filter(w => w.status === 'Waiting').length, closed = closureOn(DAY);
+  $('homeLead').textContent = fmtDate(DAY, true) + (DAY === todayISO() ? ' (today)' : '') + '. ' + (closed ? 'The centre is closed: ' + closed.title + '.' : isWeekend(DAY) ? 'The centre is closed on weekends.' : c.in + ' of ' + kids.length + ' children are signed in.');
+  const tiles = [
+    ['', 'Enrolled', kids.length, 'of ' + F.rooms.reduce((s, r) => s + r.licensed, 0) + ' licensed spaces'],
+    [c.in ? 'is-open' : '', 'Signed in now', c.in, c.out ? c.out + ' already signed out' : 'Children in the building'],
+    [c.absent ? 'is-wait' : '', 'Absent', c.absent, 'Marked absent'],
+    ['', 'Not arrived', c.expected, isOpenDay(DAY) ? 'No sign-in yet' : 'Centre closed'],
+    ['', 'Waiting list', waiting, waiting === 1 ? 'family waiting' : 'families waiting'],
+    [open0 ? 'is-open' : '', 'Open spaces', open0, 'by the end of ' + m0.label]
+  ];
+  $('homeTiles').innerHTML = tiles.map(t => '<div class="tile ' + t[0] + '"><span class="small muted">' + esc(t[1]) + '</span><b>' + t[2] + '</b><span class="small muted">' + esc(t[3]) + '</span></div>').join('');
+  const al = alertsList();
+  $('homeAlertCount').textContent = al.length ? al.length + (al.length === 1 ? ' item' : ' items') : 'All clear';
+  $('homeAlerts').innerHTML = al.length ? al.map(a => '<li><span class="dot ' + a.lv + '"></span><span><b>' + esc(a.t) + '</b><br><span class="muted small">' + esc(a.d) + '</span></span><a class="go" href="' + a.href + '">View</a></li>').join('') : '<li class="muted">Nothing needs attention right now.</li>';
+  $('homeAtt').innerHTML = '<table class="list compact"><thead><tr><th>Room</th><th class="num">Enrolled</th><th class="num">In</th><th class="num">Absent</th><th class="num">Not arrived</th><th class="num">Staff needed</th></tr></thead><tbody>' +
+    F.rooms.map(r => { const ks = kids.filter(k => k.r === r.id), rc = dayCounts(ks); return '<tr><td><a href="#actions" data-goroom="' + r.id + '">' + esc(r.name) + '</a></td><td class="num">' + ks.length + '</td><td class="num">' + rc.in + '</td><td class="num">' + rc.absent + '</td><td class="num">' + rc.expected + '</td><td class="num">' + Math.ceil(rc.in / RULES[r.lic].ratio) + '</td></tr>'; }).join('') +
+    '</tbody></table>';
+  const acts = logEntries().slice(0, 6);
+  $('homeActivity').innerHTML = acts.length ? acts.map(x => '<li><b>' + esc(x.type) + (x.kid ? ': ' + esc((kidById(x.kid) || {}).n || '') : '') + '</b><span>' + esc(x.text || '') + '</span><span class="meta">' + esc(x.time || '') + ' · ' + esc((roomById(x.room) || {}).name || 'All rooms') + '</span></li>').join('') : '<li class="muted">No log entries for ' + fmtDate(DAY) + '.</li>';
+  const msgs = rows(D.messages).sort((a, b) => (b.at || 0) - (a.at || 0)).slice(0, 5);
+  $('homeMsgs').innerHTML = msgs.length ? msgs.map(x => '<li><b>' + esc(x.subject || '(no subject)') + '</b><span class="meta">To ' + esc(x.toLabel || '') + ' · ' + fmtWhen(x.at) + '</span></li>').join('') : '<li class="muted">No messages yet.</li>';
+  const ph = rows(D.photos).sort((a, b) => (b.at || 0) - (a.at || 0)).slice(0, 6);
+  $('homePhotos').innerHTML = ph.length ? '<div class="thumbs">' + ph.map(p => '<a href="#photos" title="' + esc(p.caption || '') + '">' + mediaTag(p, true) + '</a>').join('') + '</div>' : '<p class="muted">No photos yet.</p>';
+  const evs = rows(D.events).filter(ev => (ev.end || ev.date) >= DAY).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5);
+  $('homeEvents').innerHTML = evs.length ? evs.map(ev => '<li><b>' + esc(ev.title) + '</b><span class="meta">' + esc(ev.type) + ' · ' + fmtDate(ev.date, true) + (ev.end && ev.end !== ev.date ? ' to ' + fmtDate(ev.end, true) : '') + '</span></li>').join('') : '<li class="muted">Nothing on the calendar.</li>';
+  const wk = D.menus[mondayOf(DAY)], dk = DOW[(new Date(DAY + 'T12:00').getDay() + 6) % 7], day = wk && wk.days && wk.days[dk];
+  $('homeMenu').innerHTML = isWeekend(DAY) ? '<p class="muted">No menu on weekends.</p>' : day && (day.am || day.lunch || day.pm)
+    ? '<dl class="facts left"><dt>Morning snack</dt><dd>' + esc(day.am || '—') + '</dd><dt>Lunch</dt><dd>' + esc(day.lunch || '—') + '</dd><dt>Afternoon snack</dt><dd>' + esc(day.pm || '—') + '</dd></dl>'
+    : '<p class="muted">No menu entered for this day.</p>';
+}
+
+/* ===== Registration and waitlist ===== */
+let WL_FILTER = 'active';
+function renderWaitlist() {
+  const wl = rows(D.waitlist);
+  $('wlCounters').innerHTML = WL_STATUS.map(s => '<div><b>' + wl.filter(w => w.status === s).length + '</b><span>' + s + '</span></div>').join('');
+  $('wlFilter').innerHTML = [['active', 'Waiting and offered'], ['all', 'All']].concat(WL_STATUS.map(s => [s, s])).map(o => '<button type="button" class="btn sm" data-wlf="' + o[0] + '" aria-pressed="' + (WL_FILTER === o[0]) + '">' + o[1] + '</button>').join('');
+  const shown = wl.filter(w => WL_FILTER === 'all' || (WL_FILTER === 'active' ? (w.status === 'Waiting' || w.status === 'Offered') : w.status === WL_FILTER))
+    .sort((a, b) => (a.priority && a.priority !== 'None' ? 0 : 1) - (b.priority && b.priority !== 'None' ? 0 : 1) || (a.added || 0) - (b.added || 0));
+  if (!wl.length) { $('wlTable').innerHTML = '<div class="empty"><b>No families on the waitlist yet</b><span>Add a family to see when a space for their child opens up.</span><button class="btn btn-primary" type="button" data-act="wl-add">Add family</button></div>'; return; }
+  if (!shown.length) { $('wlTable').innerHTML = '<div class="empty"><b>No families with this status</b></div>'; return; }
+  $('wlTable').innerHTML = '<table class="list"><thead><tr><th>#</th><th>Child</th><th>Born</th><th>Age group at start</th><th>Wanted start</th><th>Parent</th><th>Status</th><th>Earliest space</th></tr></thead><tbody>' +
+    shown.map((w, i) => { const e = w.status === 'Waiting' || w.status === 'Offered' ? earliestSpace(w) : null;
+      return '<tr class="click" data-wl="' + w.id + '"><td>' + (i + 1) + '</td><td><b>' + esc(w.child) + '</b>' + (w.priority && w.priority !== 'None' ? ' <span class="pill">' + esc(w.priority) + '</span>' : '') + '</td><td>' + fmtDate(w.dob) + '</td><td>' + esc(groupAtStart(w)) + '</td><td>' + fmtDate(w.start) + '</td><td>' + esc(w.parent || '') + (w.phone ? '<br><span class="muted small">' + esc(w.phone) + '</span>' : '') + '</td><td><span class="pill ' + ({ Waiting: 'wait', Offered: 'open', Accepted: 'open', Declined: 'over' }[w.status] || '') + '">' + esc(w.status) + '</span></td><td>' + (e ? esc(e.label) + '<br><span class="muted small">' + esc(e.room) + '</span>' : w.status === 'Waiting' || w.status === 'Offered' ? '<span class="muted">None in 24 months</span>' : '') + '</td></tr>'; }).join('') + '</tbody></table>';
+}
+function waitlistForm(w) {
+  openForm({ title: w ? 'Edit ' + w.child : 'Add a family to the waitlist', values: w || { status: 'Waiting', priority: 'None', start: todayISO().slice(0, 7) },
+    fields: [
+      { type: 'heading', label: 'Child' },
+      { k: 'child', label: 'Child\'s name', req: true }, { k: 'dob', label: 'Date of birth', type: 'date', req: true },
+      { k: 'start', label: 'Wanted start', type: 'month', req: true }, { k: 'days', label: 'Days needed', type: 'select', options: ['Full time (5 days)', '4 days', '3 days', '2 days', 'Flexible'] },
+      { type: 'heading', label: 'Family' },
+      { k: 'parent', label: 'Parent or guardian', req: true }, { k: 'phone', label: 'Phone', type: 'tel' },
+      { k: 'email', label: 'Email', type: 'email', wide: true },
+      { type: 'heading', label: 'Status' },
+      { k: 'status', label: 'Status', type: 'select', options: WL_STATUS }, { k: 'priority', label: 'Priority', type: 'select', options: ['None', 'Sibling enrolled', 'Staff child', 'Transfer', 'Other'] },
+      { k: 'notes', label: 'Notes', type: 'textarea', rows: 3, wide: true }
+    ],
+    onSave: v => { const id = w ? w.id : newId(); return put('waitlist/' + id, Object.assign({}, v, { added: w ? (w.added || Date.now()) : Date.now(), updated: Date.now() })); },
+    onDelete: w ? () => remove('waitlist/' + w.id) : null, deleteLabel: 'Remove from waitlist'
+  });
+}
+
+/* ===== Classroom actions ===== */
+let ACT_ROOM = 'T1';
+function renderActions() {
+  roomButtons('actRooms', ACT_ROOM, 'actroom', false);
+  const r = roomById(ACT_ROOM), ks = ENROLLED().filter(k => k.r === ACT_ROOM).sort((a, b) => a.n.localeCompare(b.n)), c = dayCounts(ks), rule = RULES[r.lic];
+  const closed = closureOn(DAY);
+  $('actTiles').innerHTML = [['is-open', 'Signed in', c.in], ['', 'Signed out', c.out], ['is-wait', 'Absent', c.absent], ['', 'Not arrived', c.expected], ['', 'Staff needed now', Math.ceil(c.in / rule.ratio), '1 to ' + rule.ratio]]
+    .map(t => '<div class="tile ' + (t[2] ? t[0] : '') + '"><span class="small muted">' + t[1] + '</span><b>' + t[2] + '</b>' + (t[3] ? '<span class="small muted">' + t[3] + '</span>' : '') + '</div>').join('');
+  $('actTable').innerHTML = (closed || isWeekend(DAY) ? '<p class="note" style="margin:12px">' + (closed ? 'The centre is closed on this day: ' + esc(closed.title) + '.' : 'This day is a weekend.') + '</p>' : '') +
+    '<table class="list"><thead><tr><th>Child</th><th>Age</th><th>Status</th><th>In</th><th>Out</th><th class="num">Actions</th></tr></thead><tbody>' +
+    ks.map(k => { const s = attStatus(k.id), rec = attRec(k.id) || {}, p = DAY.split('-').map(Number);
+      const btns = s === 'expected' ? '<button class="btn sm btn-primary" data-att="in" data-kid="' + k.id + '">Check in</button><button class="btn sm" data-att="absent" data-kid="' + k.id + '">Absent</button>'
+        : s === 'in' ? '<button class="btn sm btn-primary" data-att="out" data-kid="' + k.id + '">Check out</button>' : '';
+      return '<tr><td><b>' + esc(k.n) + '</b></td><td>' + fmtAge(ageM(k.b, p[0], p[1])) + '</td><td>' + stPill(k.id) + '</td><td>' + esc(rec.in || '') + (rec.byIn ? '<br><span class="muted small">' + esc(rec.byIn) + '</span>' : '') + '</td><td>' + esc(rec.out || '') + (rec.byOut ? '<br><span class="muted small">' + esc(rec.byOut) + '</span>' : '') + '</td><td><div class="acts">' + btns + '<button class="btn sm" data-att="edit" data-kid="' + k.id + '">Edit</button></div></td></tr>'; }).join('') + '</tbody></table>';
+  const ents = logEntries().filter(x => x.room === ACT_ROOM || !x.room);
+  $('actLog').innerHTML = ents.length ? ents.map(x => '<li class="click" data-log="' + x.id + '"><b>' + esc(x.time || '') + ' · ' + esc(x.type) + (x.kid ? ': ' + esc((kidById(x.kid) || {}).n || '') : x.room ? ' (whole room)' : ' (all rooms)') + '</b><span>' + esc(x.text || '') + '</span>' + (x.by ? '<span class="meta">By ' + esc(x.by) + '</span>' : '') + '</li>').join('') : '<li class="muted">No entries for ' + esc(r.name) + ' on ' + fmtDate(DAY) + '. Add meals, naps, activities, notes or incidents.</li>';
+}
+function setAtt(kid, patch) { return merge('attendance/' + DAY, { date: DAY, kids: { [kid]: patch } }); }
+function attForm(kid) {
+  const k = kidById(kid), rec = attRec(kid) || {};
+  openForm({ title: 'Attendance for ' + k.n + ', ' + fmtDate(DAY), values: rec,
+    fields: [{ k: 'in', label: 'Checked in', type: 'time' }, { k: 'byIn', label: 'Dropped off by' }, { k: 'out', label: 'Checked out', type: 'time' }, { k: 'byOut', label: 'Picked up by' },
+      { k: 'absent', label: 'Absent today', type: 'checkbox', wide: true }, { k: 'note', label: 'Note', type: 'textarea', rows: 2, wide: true }],
+    onSave: v => setAtt(kid, v.absent ? Object.assign(v, { in: '', out: '' }) : v),
+    onDelete: () => setAtt(kid, { in: '', out: '', absent: false, byIn: '', byOut: '', note: '' }), deleteLabel: 'Clear attendance' });
+}
+function logForm(entry) {
+  const ks = ENROLLED().filter(k => k.r === (entry ? entry.room : ACT_ROOM));
+  openForm({ title: entry ? 'Edit log entry' : 'Add a log entry for ' + roomById(ACT_ROOM).name, values: entry || { time: nowHM(), type: 'Activity', kid: '' },
+    fields: [{ k: 'time', label: 'Time', type: 'time', req: true }, { k: 'type', label: 'Type', type: 'select', options: ['Activity', 'Meal', 'Nap', 'Toileting', 'Note', 'Incident'] },
+      { k: 'kid', label: 'Who', type: 'select', options: [['', 'Whole room']].concat(ks.map(k => [String(k.id), k.n])), wide: true },
+      { k: 'text', label: 'What happened', type: 'textarea', rows: 3, wide: true, req: true }, { k: 'by', label: 'Recorded by' }],
+    onSave: v => { const id = entry ? entry.id : newId(); return merge('logs/' + DAY, { date: DAY, entries: { [id]: Object.assign({}, v, { kid: v.kid ? +v.kid : null, room: entry ? entry.room : ACT_ROOM, at: entry ? entry.at : Date.now() }) } }); },
+    onDelete: entry ? () => merge('logs/' + DAY, { entries: { [entry.id]: { deleted: true } } }) : null });
+}
+
+/* ===== Parent sign-in ===== */
+let SI_ROOM = 'all';
+function renderSignin() {
+  roomButtons('siRooms', SI_ROOM, 'siroom', true);
+  const q = ($('siSearch').value || '').toLowerCase().replace(/[^a-z]/g, '');
+  const ks = ENROLLED().filter(k => (SI_ROOM === 'all' || k.r === SI_ROOM) && (!q || k.n.toLowerCase().replace(/[^a-z]/g, '').includes(q))).sort((a, b) => ROOMS.findIndex(r => r.id === a.r) - ROOMS.findIndex(r => r.id === b.r) || a.n.localeCompare(b.n));
+  const c = dayCounts(ENROLLED());
+  $('siLead').textContent = fmtDate(DAY, true) + (DAY !== todayISO() ? ' (not today: change the date on the Dashboard)' : '') + '. ' + c.in + ' signed in, ' + c.out + ' signed out. Tap a child to sign them in or out.';
+  $('siGrid').innerHTML = ks.length ? ks.map(k => { const s = attStatus(k.id), rec = attRec(k.id) || {};
+    return '<button type="button" class="kid ' + s + '" data-si="' + k.id + '"><b>' + esc(k.n) + '</b><span class="small muted">' + esc(roomById(k.r).name) + '</span><span class="st">' + (s === 'in' ? 'In since ' + rec.in : s === 'out' ? 'Left at ' + rec.out : s === 'absent' ? 'Absent' : 'Not here yet') + '</span></button>'; }).join('') : '<p class="muted">No child matches that search.</p>';
+}
+function signForm(kid) {
+  const k = kidById(kid), s = attStatus(kid);
+  if (s === 'absent') { toast(k.n + ' is marked absent today. Change it in Classroom actions.'); return; }
+  const out = s === 'in', done = s === 'out';
+  if (done) { toast(k.n + ' has already been signed out today.'); return; }
+  openForm({ title: (out ? 'Sign out ' : 'Sign in ') + k.n, intro: roomById(k.r).name + ' · ' + fmtDate(DAY, true), values: { time: nowHM() }, submit: out ? 'Sign out' : 'Sign in',
+    fields: [{ k: 'by', label: out ? 'Picked up by' : 'Dropped off by', req: true, ph: 'Your name' }, { k: 'time', label: 'Time', type: 'time', req: true }],
+    onSave: v => setAtt(kid, out ? { out: v.time, byOut: v.by } : { in: v.time, byIn: v.by, absent: false }).then(ok => { if (ok) toast(k.n + (out ? ' signed out at ' : ' signed in at ') + v.time + '.'); return ok; }) });
+}
+
+/* ===== Contacts ===== */
+let CT_ROOM = 'all';
+function renderContacts() {
+  roomButtons('ctRooms', CT_ROOM, 'ctroom', true);
+  const q = ($('ctSearch').value || '').toLowerCase();
+  const ks = ENROLLED().filter(k => CT_ROOM === 'all' || k.r === CT_ROOM).filter(k => { if (!q) return true; const c = D.contacts['c' + k.id] || {}; return [k.n, c.g1name, c.g2name, c.ename].join(' ').toLowerCase().includes(q); })
+    .sort((a, b) => ROOMS.findIndex(r => r.id === a.r) - ROOMS.findIndex(r => r.id === b.r) || a.n.localeCompare(b.n));
+  const missing = ENROLLED().filter(k => { const c = D.contacts['c' + k.id]; return !c || !(c.g1name || c.ename); }).length;
+  $('ctTable').innerHTML = '<p class="muted small" style="margin:12px">' + (ENROLLED().length - missing) + ' of ' + ENROLLED().length + ' children have contacts on file.</p><table class="list"><thead><tr><th>Child</th><th>Room</th><th>Parents and guardians</th><th>Emergency contact</th><th>May pick up</th></tr></thead><tbody>' +
+    ks.map(k => { const c = D.contacts['c' + k.id] || {};
+      const g = [[c.g1name, c.g1rel, c.g1phone], [c.g2name, c.g2rel, c.g2phone]].filter(x => x[0]).map(x => esc(x[0]) + (x[1] ? ' <span class="muted">(' + esc(x[1]) + ')</span>' : '') + (x[2] ? '<br><span class="muted small">' + esc(x[2]) + '</span>' : '')).join('<br>');
+      return '<tr class="click" data-ct="' + k.id + '"><td><b>' + esc(k.n) + '</b></td><td>' + esc(roomById(k.r).name) + '</td><td>' + (g || '<span class="pill wait">None on file</span>') + '</td><td>' + (c.ename ? esc(c.ename) + (c.ephone ? '<br><span class="muted small">' + esc(c.ephone) + '</span>' : '') : '<span class="muted">—</span>') + '</td><td>' + (c.pickup ? esc(c.pickup) : '<span class="muted">Parents only</span>') + '</td></tr>'; }).join('') + '</tbody></table>';
+}
+function contactForm(kid) {
+  const k = kidById(kid), c = D.contacts['c' + kid];
+  const g = n => [{ type: 'heading', label: n === 1 ? 'Parent or guardian 1' : 'Parent or guardian 2' }, { k: 'g' + n + 'name', label: 'Name', req: n === 1 }, { k: 'g' + n + 'rel', label: 'Relationship', ph: 'Mother, father, guardian…' }, { k: 'g' + n + 'phone', label: 'Phone', type: 'tel' }, { k: 'g' + n + 'email', label: 'Email', type: 'email' }];
+  openForm({ title: 'Contacts for ' + k.n, intro: roomById(k.r).name, values: c || {},
+    fields: g(1).concat(g(2), [{ type: 'heading', label: 'Emergency contact' }, { k: 'ename', label: 'Name' }, { k: 'erel', label: 'Relationship' }, { k: 'ephone', label: 'Phone', type: 'tel', wide: true },
+      { type: 'heading', label: 'Pick-up' }, { k: 'pickup', label: 'Others who may pick up', hint: 'names, separated by commas', wide: true }, { k: 'notes', label: 'Notes', type: 'textarea', rows: 2, wide: true }]),
+    onSave: v => put('contacts/c' + kid, Object.assign(v, { kid, updated: Date.now() })),
+    onDelete: c ? () => remove('contacts/c' + kid) : null, deleteLabel: 'Clear contacts' });
+}
+function emailsFor(to) {
+  const ks = to === 'all' ? ENROLLED() : to.startsWith('room:') ? ENROLLED().filter(k => k.r === to.slice(5)) : ENROLLED().filter(k => String(k.id) === to.slice(4));
+  const set = new Set(); let missing = 0;
+  ks.forEach(k => { const c = D.contacts['c' + k.id] || {}; const e = [c.g1email, c.g2email].filter(Boolean); if (!e.length) missing++; e.forEach(x => set.add(x)); });
+  return { emails: Array.from(set), kids: ks.length, missing };
+}
+
+/* ===== Messaging ===== */
+function renderMessages() {
+  const msgs = rows(D.messages).sort((a, b) => (b.at || 0) - (a.at || 0));
+  $('msgTable').innerHTML = msgs.length ? '<table class="list"><thead><tr><th>Saved</th><th>To</th><th>Subject</th><th>From</th></tr></thead><tbody>' + msgs.map(m => '<tr class="click" data-msg="' + m.id + '"><td>' + fmtWhen(m.at) + '</td><td>' + esc(m.toLabel || '') + '</td><td><b>' + esc(m.subject || '(no subject)') + '</b><br><span class="muted small">' + esc((m.body || '').slice(0, 90)) + ((m.body || '').length > 90 ? '…' : '') + '</span></td><td>' + esc(m.from || '') + '</td></tr>').join('') + '</tbody></table>'
+    : '<div class="empty"><b>No messages yet</b><span>Write to all families, one room, or one child\'s family.</span><button class="btn btn-primary" type="button" data-act="msg-add">New message</button></div>';
+}
+function msgTargets() { return [['all', 'All families']].concat(ROOMS.map(r => ['room:' + r.id, 'Families in ' + r.name]), ENROLLED().map(k => ['kid:' + k.id, 'Family of ' + k.n + ' (' + roomById(k.r).name + ')'])); }
+function msgForm() {
+  openForm({ title: 'New message', values: { to: 'all', from: (D.settings.centre && D.settings.centre.name) || 'Newstead Academy' }, submit: 'Save message',
+    fields: [{ k: 'to', label: 'To', type: 'select', options: msgTargets(), wide: true }, { k: 'subject', label: 'Subject', req: true, wide: true }, { k: 'body', label: 'Message', type: 'textarea', rows: 7, req: true, wide: true }, { k: 'from', label: 'From', wide: true }],
+    onSave: async v => { const id = newId(), label = msgTargets().find(t => t[0] === v.to)[1]; const ok = await put('messages/' + id, Object.assign(v, { toLabel: label, at: Date.now() })); if (ok) setTimeout(() => showMsg(Object.assign({ id }, v, { toLabel: label, at: Date.now() })), 0); return ok; } });
+}
+function showMsg(m) {
+  const r = emailsFor(m.to);
+  openView(m.subject || 'Message', '<div class="stack-s"><p class="muted small">To ' + esc(m.toLabel) + ' · from ' + esc(m.from || '') + ' · saved ' + fmtWhen(m.at) + '</p><div class="panel" style="white-space:pre-wrap">' + esc(m.body || '') + '</div>' +
+    '<p class="small">' + (r.emails.length ? r.emails.length + ' email ' + (r.emails.length === 1 ? 'address' : 'addresses') + ' on file for ' + r.kids + (r.kids === 1 ? ' child' : ' children') + '.' : 'No email addresses on file for these families yet.') + (r.missing ? ' ' + r.missing + (r.missing === 1 ? ' child has' : ' children have') + ' no parent email in Contacts.' : '') + '</p>' +
+    '<div class="row"><button class="btn btn-primary" type="button" data-vact="copyMsg">Copy message</button>' + (r.emails.length ? '<button class="btn" type="button" data-vact="copyEmails">Copy email addresses</button>' : '') + '<span class="muted small" id="mvStatus" role="status"></span></div>' +
+    '<div class="mfoot"><button class="btn danger" type="button" data-vact="del">Delete</button><button class="btn" type="button" data-close>Close</button></div></div>',
+    { copyMsg: () => copyText((m.subject ? m.subject + '\n\n' : '') + (m.body || ''), 'mvStatus'), copyEmails: () => copyText(r.emails.join(', '), 'mvStatus'),
+      del: b => { if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Click again to delete'; return; } remove('messages/' + m.id).then(closeModal); } });
+}
+
+/* ===== Photos and videos ===== */
+let PH_ROOM = 'all';
+function mediaTag(p, thumb) {
+  const src = p.url || (p.assetId ? '/_blob/' + p.assetId : '');
+  return (p.kind || '').startsWith('video') ? '<video src="' + esc(src) + '"' + (thumb ? ' muted preload="metadata"' : ' controls class="bigmedia"') + '></video>' : '<img src="' + esc(src) + '" alt="' + esc(p.caption || 'Photo') + '"' + (thumb ? ' loading="lazy"' : ' class="bigmedia"') + '>';
+}
+function renderPhotos() {
+  roomButtons('phRooms', PH_ROOM, 'phroom', true);
+  const can = !!STORE.assets;
+  $('phAddBtn').disabled = !can;
+  $('phNote').hidden = can;
+  $('phNote').textContent = 'Photo and video uploads are not switched on for this admin yet. The page is ready for them: once uploads are turned on, the Upload button works and pictures appear here by room.';
+  const ph = rows(D.photos).filter(p => PH_ROOM === 'all' || p.room === PH_ROOM || p.room === 'all').sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.at || 0) - (a.at || 0));
+  $('phGrid').innerHTML = ph.length ? '<div class="pgrid">' + ph.map(p => '<button type="button" class="pcard" data-ph="' + p.id + '"><div class="pimg">' + mediaTag(p, true) + '</div><div class="pcap"><b>' + esc(p.caption || 'Untitled') + '</b><span class="muted small">' + esc(p.room === 'all' ? 'All rooms' : (roomById(p.room) || {}).name || '') + ' · ' + fmtDate(p.date) + '</span></div></button>').join('') + '</div>'
+    : '<div class="panel empty"><b>No photos or videos yet</b><span>' + (can ? 'Upload pictures from the day to share with families.' : 'Once uploading is available, pictures appear here by room.') + '</span></div>';
+}
+function photoForm() {
+  if (!STORE.assets) return;
+  openForm({ title: 'Upload a photo or video', values: { room: PH_ROOM === 'all' ? 'all' : PH_ROOM, date: DAY }, submit: 'Upload',
+    fields: [{ k: 'file', label: 'Photo or video', type: 'file', accept: 'image/*,video/*', req: true, wide: true }, { k: 'room', label: 'Room', type: 'select', options: [['all', 'All rooms']].concat(ROOM_OPTS()) }, { k: 'date', label: 'Date', type: 'date', req: true }, { k: 'caption', label: 'Caption', wide: true }],
+    onSave: async v => {
+      if (!v.file) { toast('Choose a file first.', true); return false; }
+      if (v.file.size > 20 * 1024 * 1024) { toast('That file is over 20 MB. Choose a smaller one.', true); return false; }
+      toast('Uploading…');
+      let a; try { a = await STORE.assets.upload(v.file); } catch (e) { toast('The upload did not work' + (e && e.message ? ': ' + e.message : '.'), true); return false; }
+      return put('photos/' + newId(), { assetId: a.id, url: a.url, kind: a.contentType || v.file.type, room: v.room, date: v.date, caption: v.caption, at: Date.now() });
+    } });
+}
+function showPhoto(p) {
+  openView(p.caption || 'Photo', '<div class="stack-s">' + mediaTag(p, false) + '<p class="muted small">' + esc(p.room === 'all' ? 'All rooms' : (roomById(p.room) || {}).name || '') + ' · ' + fmtDate(p.date) + '</p><div class="mfoot">' + (STORE.assets ? '<button class="btn danger" type="button" data-vact="del">Delete</button>' : '<span></span>') + '<button class="btn" type="button" data-close>Close</button></div></div>',
+    { del: async b => { if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Click again to delete'; return; } try { if (STORE.assets && p.assetId) await STORE.assets.delete(p.assetId); } catch (e) {} await remove('photos/' + p.id); closeModal(); } });
+}
+
+/* ===== Billing and subsidies ===== */
+let BILL_MONTH = todayISO().slice(0, 7);
+const FEE_GROUPS = ['Toddler', 'Preschool', 'Kindergarten'];
+const feeFor = k => { const f = (D.settings.billing && D.settings.billing.fees) || {}; return +f[roomById(k.r).runsAs] || 0; };
+function renderBilling() {
+  $('billMonth').value = BILL_MONTH;
+  const doc = D.billing[BILL_MONTH], lines = doc && doc.lines ? doc.lines : null, fees = (D.settings.billing && D.settings.billing.fees) || null;
+  const L = lines ? Object.keys(lines).map(id => Object.assign({ kid: +id }, lines[id])).filter(l => kidById(l.kid)) : [];
+  const sum = f => L.reduce((s, l) => s + f(l), 0);
+  const billed = sum(l => +l.fee || 0), sub = sum(l => +l.subsidy || 0), owe = sum(l => Math.max(0, (+l.fee || 0) - (+l.subsidy || 0))), paid = sum(l => l.paid ? Math.max(0, (+l.fee || 0) - (+l.subsidy || 0)) : 0);
+  $('billTiles').innerHTML = [['', 'Total fees', money(billed)], ['', 'Subsidies', money(sub)], ['', 'Families owe', money(owe)], ['is-open', 'Collected', money(paid)], [owe - paid > 0 ? 'is-wait' : '', 'Outstanding', money(owe - paid)]]
+    .map(t => '<div class="tile ' + t[0] + '"><span class="small muted">' + t[1] + '</span><b>' + t[2] + '</b></div>').join('');
+  if (!lines) {
+    $('billBody').innerHTML = '<div class="panel empty"><b>No invoices for ' + fmtDate(BILL_MONTH) + '</b>' + (fees ? '<span>Creates one invoice for each of the ' + ENROLLED().length + ' enrolled children, at the monthly fee for their room. You can change any amount afterwards.</span><button class="btn btn-primary" type="button" data-act="bill-create">Create invoices for ' + fmtDate(BILL_MONTH) + '</button>' : '<span>Set the monthly fee for each age group first.</span><button class="btn btn-primary" type="button" data-act="bill-fees">Set fees</button>') + '</div>';
+    return;
+  }
+  const missing = ENROLLED().filter(k => !lines[k.id]);
+  $('billBody').innerHTML = (missing.length ? '<p class="note">' + missing.length + ' enrolled ' + (missing.length === 1 ? 'child has' : 'children have') + ' no invoice this month. <a href="#billing" data-act="bill-missing">Add ' + (missing.length === 1 ? 'it' : 'them') + '</a></p>' : '') +
+    '<div class="tablebox"><table class="list"><thead><tr><th>Child</th><th>Room</th><th class="num">Fee</th><th class="num">Subsidy</th><th class="num">Family owes</th><th>Status</th><th class="num">Actions</th></tr></thead><tbody>' +
+    L.sort((a, b) => ROOMS.findIndex(r => r.id === kidById(a.kid).r) - ROOMS.findIndex(r => r.id === kidById(b.kid).r) || kidById(a.kid).n.localeCompare(kidById(b.kid).n)).map(l => { const k = kidById(l.kid), o = Math.max(0, (+l.fee || 0) - (+l.subsidy || 0));
+      return '<tr><td><b>' + esc(k.n) + '</b>' + (l.note ? '<br><span class="muted small">' + esc(l.note) + '</span>' : '') + '</td><td>' + esc(roomById(k.r).name) + '</td><td class="num">' + money(l.fee) + '</td><td class="num">' + (+l.subsidy ? money(l.subsidy) : '—') + '</td><td class="num"><b>' + money(o) + '</b></td><td>' + (l.paid ? '<span class="pill open">Paid' + (l.paidOn ? ' ' + fmtDate(l.paidOn) : '') + '</span>' : o === 0 ? '<span class="pill">Nothing owed</span>' : '<span class="pill wait">Unpaid</span>') + '</td><td><div class="acts">' + (!l.paid && o > 0 ? '<button class="btn sm btn-primary" data-bill="pay" data-kid="' + l.kid + '">Mark paid</button>' : '') + '<button class="btn sm" data-bill="edit" data-kid="' + l.kid + '">Edit</button></div></td></tr>'; }).join('') +
+    '</tbody></table></div>';
+}
+function feesForm() {
+  const f = (D.settings.billing && D.settings.billing.fees) || {};
+  openForm({ title: 'Monthly fees', intro: 'The full monthly fee for a five-day child in each age group, before any subsidy. New invoices use these amounts; existing invoices don\'t change.', values: f,
+    fields: FEE_GROUPS.map(g => ({ k: g, label: g + ' rooms ($ per month)', type: 'number', min: 0, step: '0.01', req: true })),
+    onSave: v => put('settings/billing', { fees: v, updated: Date.now() }) });
+}
+function createInvoices(kids) {
+  const lines = {}; kids.forEach(k => { lines[k.id] = { fee: feeFor(k), subsidy: 0, paid: false }; });
+  return merge('billing/' + BILL_MONTH, { month: BILL_MONTH, lines, created: Date.now() });
+}
+function billLineForm(kid) {
+  const k = kidById(kid), l = D.billing[BILL_MONTH].lines[kid];
+  openForm({ title: k.n + ', ' + fmtDate(BILL_MONTH), values: l,
+    fields: [{ k: 'fee', label: 'Fee ($)', type: 'number', min: 0, step: '0.01', req: true }, { k: 'subsidy', label: 'Subsidy ($)', type: 'number', min: 0, step: '0.01', hint: 'fee reduction or subsidy' },
+      { k: 'paid', label: 'Paid', type: 'checkbox' }, { k: 'paidOn', label: 'Paid on', type: 'date' }, { k: 'note', label: 'Note', wide: true, ph: 'Payment method, subsidy program…' }],
+    onSave: v => merge('billing/' + BILL_MONTH, { lines: { [kid]: Object.assign(v, { fee: +v.fee || 0, subsidy: +v.subsidy || 0, paidOn: v.paid ? (v.paidOn || todayISO()) : '' }) } }) });
+}
+
+/* ===== Menus and calendars ===== */
+const DOW = ['mon', 'tue', 'wed', 'thu', 'fri'], DOW_NAME = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], MEALS = [['am', 'Morning snack'], ['lunch', 'Lunch'], ['pm', 'Afternoon snack']];
+let WEEK = mondayOf(todayISO());
+function renderCalendars() {
+  $('wkLabel').textContent = 'Week of ' + fmtDate(WEEK);
+  const wk = D.menus[WEEK];
+  $('wkTable').innerHTML = '<table class="list"><thead><tr><th>Day</th>' + MEALS.map(m => '<th>' + m[1] + '</th>').join('') + '</tr></thead><tbody>' +
+    DOW.map((d, i) => { const day = wk && wk.days && wk.days[d] || {}; const date = addDays(WEEK, i), cl = closureOn(date);
+      return '<tr><td><b>' + DOW_NAME[i] + '</b><br><span class="muted small">' + fmtDate(date) + '</span></td>' + (cl ? '<td colspan="3"><span class="pill">Closed: ' + esc(cl.title) + '</span></td>' : MEALS.map(m => '<td style="white-space:normal">' + (day[m[0]] ? esc(day[m[0]]) : '<span class="muted">—</span>') + '</td>').join('')) + '</tr>'; }).join('') + '</tbody></table>';
+  const today = todayISO(), evs = rows(D.events).sort((a, b) => a.date.localeCompare(b.date));
+  const up = evs.filter(e => (e.end || e.date) >= today), past = evs.filter(e => (e.end || e.date) < today).reverse();
+  const evRow = e => '<tr class="click" data-ev="' + e.id + '"><td>' + fmtDate(e.date, true) + (e.end && e.end !== e.date ? ' to ' + fmtDate(e.end, true) : '') + '</td><td><b>' + esc(e.title) + '</b>' + (e.notes ? '<br><span class="muted small">' + esc(e.notes) + '</span>' : '') + '</td><td><span class="pill ' + (e.type === 'Closure' || e.type === 'Holiday' ? 'wait' : '') + '">' + esc(e.type) + '</span></td></tr>';
+  $('evList').innerHTML = (up.length ? '<div class="tablebox flat"><table class="list"><thead><tr><th>Date</th><th>Event</th><th>Type</th></tr></thead><tbody>' + up.map(evRow).join('') + '</tbody></table></div>' : '<p class="muted">No upcoming events. Add holidays, closures, PA days and family events.</p>') +
+    (past.length ? '<details><summary>Past events (' + past.length + ')</summary><div class="tablebox flat" style="margin-top:8px"><table class="list"><tbody>' + past.map(evRow).join('') + '</tbody></table></div></details>' : '');
+}
+function menuForm() {
+  const wk = D.menus[WEEK], vals = {};
+  DOW.forEach(d => MEALS.forEach(m => { vals[d + '_' + m[0]] = wk && wk.days && wk.days[d] && wk.days[d][m[0]] || ''; }));
+  openForm({ title: 'Menu for the week of ' + fmtDate(WEEK), values: vals,
+    fields: DOW.flatMap((d, i) => [{ type: 'heading', label: DOW_NAME[i] }].concat(MEALS.map(m => ({ k: d + '_' + m[0], label: m[1], wide: m[0] === 'lunch' })))),
+    onSave: v => { const days = {}; DOW.forEach(d => { days[d] = {}; MEALS.forEach(m => { days[d][m[0]] = v[d + '_' + m[0]] || ''; }); }); return put('menus/' + WEEK, { week: WEEK, days, updated: Date.now() }); } });
+}
+function eventForm(e) {
+  openForm({ title: e ? 'Edit event' : 'Add an event', values: e || { date: todayISO(), type: 'Event' },
+    fields: [{ k: 'title', label: 'Title', req: true, wide: true }, { k: 'type', label: 'Type', type: 'select', options: ['Event', 'Closure', 'Holiday', 'PA day', 'Staff training', 'Field trip'] }, { k: 'date', label: 'Date', type: 'date', req: true },
+      { k: 'end', label: 'End date', type: 'date', hint: 'optional' }, { k: 'notes', label: 'Notes', type: 'textarea', rows: 2, wide: true }],
+    onSave: v => { if (v.end && v.end < v.date) { toast('The end date is before the start date.', true); return false; } return put('events/' + (e ? e.id : newId()), v); },
+    onDelete: e ? () => remove('events/' + e.id) : null });
+}
+
+/* ===== Logins and configuration ===== */
+function renderConfig() {
+  const c = D.settings.centre || {};
+  const facts = [['Name', c.name || 'Newstead Academy Childcare'], ['Address', c.address], ['Phone', c.phone], ['Email', c.email], ['Licence number', c.licence], ['Hours', c.hours], ['Supervisor', c.supervisor]];
+  $('centreFacts').innerHTML = '<dl class="facts left">' + facts.map(f => '<dt>' + f[0] + '</dt><dd>' + (f[1] ? esc(f[1]) : '<span class="muted">Not set</span>') + '</dd>').join('') + '</dl>';
+  const st = rows(D.staff).sort((a, b) => (a.active === false) - (b.active === false) || (a.name || '').localeCompare(b.name || ''));
+  $('staffTable').innerHTML = st.length ? '<table class="list"><thead><tr><th>Name</th><th>Role</th><th>Room</th><th>Phone</th><th>Email</th><th>Status</th></tr></thead><tbody>' + st.map(s => '<tr class="click" data-staff="' + s.id + '"><td><b>' + esc(s.name) + '</b></td><td>' + esc(s.role || '') + '</td><td>' + esc(s.room ? (roomById(s.room) || {}).name || s.room : '') + '</td><td>' + esc(s.phone || '') + '</td><td>' + esc(s.email || '') + '</td><td>' + (s.active === false ? '<span class="pill">Inactive</span>' : '<span class="pill open">Active</span>') + '</td></tr>').join('') + '</tbody></table>'
+    : '<p class="muted" style="padding:12px">No staff added yet.</p>';
+  setSaveNote();
+}
+function centreForm() {
+  openForm({ title: 'Centre details', values: Object.assign({ name: 'Newstead Academy Childcare' }, D.settings.centre || {}),
+    fields: [{ k: 'name', label: 'Centre name', req: true, wide: true }, { k: 'address', label: 'Address', wide: true }, { k: 'phone', label: 'Phone', type: 'tel' }, { k: 'email', label: 'Email', type: 'email' },
+      { k: 'licence', label: 'Licence number' }, { k: 'hours', label: 'Hours', ph: '7:00 am to 6:00 pm' }, { k: 'supervisor', label: 'Supervisor', wide: true }],
+    onSave: v => put('settings/centre', v) });
+}
+function staffForm(s) {
+  openForm({ title: s ? 'Edit ' + s.name : 'Add a staff member', values: s || { active: true, role: 'RECE' },
+    fields: [{ k: 'name', label: 'Name', req: true }, { k: 'role', label: 'Role', type: 'select', options: ['Supervisor', 'Assistant supervisor', 'RECE', 'Educator', 'Cook', 'Office', 'Other'] },
+      { k: 'room', label: 'Main room', type: 'select', options: [['', 'None or floating']].concat(ROOM_OPTS()) }, { k: 'phone', label: 'Phone', type: 'tel' }, { k: 'email', label: 'Email', type: 'email', wide: true },
+      { k: 'active', label: 'Currently working here', type: 'checkbox', wide: true }],
+    onSave: v => put('staff/' + (s ? s.id : newId()), v), onDelete: s ? () => remove('staff/' + s.id) : null });
+}
+function backup() {
+  const out = { exported: new Date().toISOString(), waitlist: D.waitlist, contacts: D.contacts, messages: D.messages, photos: D.photos, events: D.events, staff: D.staff, settings: D.settings, menus: D.menus, billing: D.billing };
+  const note = STORE.mode === 'db' ? Promise.resolve(STORE.db.collection('attendance').get()).then(s => { out.attendance = {}; s.docs.forEach(d => out.attendance[d.id] = d.data()); return STORE.db.collection('logs').get(); }).then(s => { out.logs = {}; s.docs.forEach(d => out.logs[d.id] = d.data()); }).catch(() => {})
+    : Promise.resolve().then(() => { out.attendance = localRead({ kind: 'col', path: 'attendance' }); out.logs = localRead({ kind: 'col', path: 'logs' }); });
+  note.then(() => copyText(JSON.stringify(out, null, 2), 'backupMsg'));
+}
+
+/* ===== Wiring ===== */
+const RENDER = { dashboard: renderHome, waitlist: renderWaitlist, actions: renderActions, signin: renderSignin, contacts: renderContacts, messaging: renderMessages, photos: renderPhotos, billing: renderBilling, calendars: renderCalendars, configuration: renderConfig };
+function refresh() {
+  if (rafPending) return; rafPending = true;
+  requestAnimationFrame(() => { rafPending = false; if (!F) return; document.querySelectorAll('[data-day]').forEach(i => { i.value = DAY; }); if (RENDER[CUR]) RENDER[CUR](); updateBadge(); });
+}
+function updateBadge() { const b = $('navBadge'); if (!b) return; const n = alertsList().filter(a => a.lv !== 'info').length; b.textContent = n; b.hidden = !n; }
+document.addEventListener('change', e => { if (e.target.matches('[data-day]')) setDay(e.target.value); if (e.target.id === 'billMonth' && e.target.value) { BILL_MONTH = e.target.value; refresh(); } });
+document.addEventListener('input', e => { if (e.target.id === 'siSearch') renderSignin(); if (e.target.id === 'ctSearch') renderContacts(); });
+document.addEventListener('click', e => {
+  const t = e.target;
+  const a = t.closest('[data-act]');
+  if (a) {
+    const act = a.dataset.act; if (a.tagName === 'A') e.preventDefault();
+    const fn = { 'wl-add': () => waitlistForm(null), 'log-add': () => logForm(null), 'ph-add': photoForm, 'msg-add': msgForm, 'bill-fees': feesForm,
+      'bill-create': () => createInvoices(ENROLLED()), 'bill-missing': () => createInvoices(ENROLLED().filter(k => !(D.billing[BILL_MONTH].lines || {})[k.id])),
+      'wk-prev': () => { WEEK = addDays(WEEK, -7); refresh(); }, 'wk-next': () => { WEEK = addDays(WEEK, 7); refresh(); }, 'wk-edit': menuForm,
+      'wk-copy': () => { const prev = D.menus[addDays(WEEK, -7)]; if (!prev) { toast('There is no menu for last week to copy.', true); return; } put('menus/' + WEEK, { week: WEEK, days: prev.days, updated: Date.now() }).then(ok => ok && toast('Copied last week\'s menu.')); },
+      'ev-add': () => eventForm(null), 'centre-edit': centreForm, 'staff-add': () => staffForm(null), 'backup': backup }[act];
+    if (fn) fn(); return;
+  }
+  const pick = (attr, set) => { const b = t.closest('[data-' + attr + ']'); if (b) { set(b.dataset[attr]); refresh(); return true; } return false; };
+  if (pick('actroom', v => ACT_ROOM = v) || pick('siroom', v => SI_ROOM = v) || pick('ctroom', v => CT_ROOM = v) || pick('phroom', v => PH_ROOM = v) || pick('wlf', v => WL_FILTER = v)) return;
+  const gr = t.closest('[data-goroom]'); if (gr) { ACT_ROOM = gr.dataset.goroom; return; }
+  const at = t.closest('[data-att]');
+  if (at) { const kid = +at.dataset.kid, w = at.dataset.att; if (w === 'in') setAtt(kid, { in: nowHM(), absent: false }); else if (w === 'out') setAtt(kid, { out: nowHM() }); else if (w === 'absent') setAtt(kid, { absent: true, in: '', out: '' }); else attForm(kid); return; }
+  const row = (attr, fn) => { const r = t.closest('[data-' + attr + ']'); if (r) { fn(r.dataset[attr]); return true; } return false; };
+  row('wl', id => waitlistForm(Object.assign({ id }, D.waitlist[id]))) || row('si', id => signForm(+id)) || row('ct', id => contactForm(+id)) || row('msg', id => showMsg(Object.assign({ id }, D.messages[id]))) ||
+  row('ph', id => showPhoto(Object.assign({ id }, D.photos[id]))) || row('ev', id => eventForm(Object.assign({ id }, D.events[id]))) || row('staff', id => staffForm(Object.assign({ id }, D.staff[id]))) ||
+  row('log', id => logForm(logEntries().find(x => x.id === id))) || row('bill', () => { const b = t.closest('[data-bill]'), kid = +b.dataset.kid; if (b.dataset.bill === 'pay') merge('billing/' + BILL_MONTH, { lines: { [kid]: { paid: true, paidOn: todayISO() } } }); else billLineForm(kid); });
+});
+
 syncControls(); run(); route();
 </script>
 </body>
