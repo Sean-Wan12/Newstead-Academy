@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Newstead Capacity Forecast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a dark menu rail on the left, one calm working area on the right; the forecast is a seat map, rooms down and months across. */
+:root {
+  --bg: #F2F5F3; --surface: #FFFFFF; --ink: #122033; --muted: #556273; --line: #D6DEDA;
+  --rail: #13233A; --rail-ink: #E8EEF5; --rail-muted: #9FB0C4; --rail-on: #2346E8;
+  --accent: #2346E8; --accent-ink: #FFFFFF;
+  --open: #0B8F63; --wait: #A85707; --over: #C8281E; --full: #E9EEEB;
+  --display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+  --body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --s1: 4px; --s2: 8px; --s3: 16px; --s4: 24px; --s5: 32px; --s6: 48px;
+  --r: 10px; --ctl: 44px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E151D; --surface: #17212C; --ink: #E9EEF2; --muted: #A3B0BD; --line: #2B3948;
+    --rail: #0A1118; --rail-ink: #E8EEF5; --rail-muted: #93A4B8; --rail-on: #3D5BF0;
+    --accent: #8EA2FF; --accent-ink: #0E151D;
+    --open: #3FCF9B; --wait: #F0A651; --over: #FF7A6E; --full: #202C38;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E151D; --surface: #17212C; --ink: #E9EEF2; --muted: #A3B0BD; --line: #2B3948;
+  --rail: #0A1118; --rail-ink: #E8EEF5; --rail-muted: #93A4B8; --rail-on: #3D5BF0;
+  --accent: #8EA2FF; --accent-ink: #0E151D;
+  --open: #3FCF9B; --wait: #F0A651; --over: #FF7A6E; --full: #202C38;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--body); font-variant-numeric: tabular-nums; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(28px, 3.4vw, 40px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+h2 { font-size: 22px; font-weight: 700; line-height: 1.25; }
+h3 { font-size: 17px; font-weight: 700; line-height: 1.3; }
+p { margin: 0; }
+a { color: var(--accent); }
+.muted { color: var(--muted); }
+.small { font-size: 14px; line-height: 1.5; }
+.lead { font-size: 18px; line-height: 1.6; max-width: 62ch; }
+.stack { display: flex; flex-direction: column; gap: var(--s5); }
+.stack-s { display: flex; flex-direction: column; gap: var(--s3); }
+.row { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+
+/* Shell */
+.shell { display: grid; grid-template-columns: 272px minmax(0, 1fr); min-height: 100vh; }
+.rail { background: var(--rail); color: var(--rail-ink); padding: var(--s4) var(--s3); display: flex; flex-direction: column; gap: var(--s4); position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.brand { font: 700 22px/1 var(--display); display: flex; align-items: center; gap: var(--s2); padding: 0 var(--s2); }
+.brand i { width: 14px; height: 14px; border-radius: 4px; background: #8EA2FF; display: inline-block; box-shadow: 18px 0 0 #3FCF9B; margin-right: 18px; }
+.centre { border: 1px solid rgba(255,255,255,.14); border-radius: var(--r); padding: var(--s3); display: flex; flex-direction: column; gap: 2px; }
+.centre span { font-size: 12px; color: var(--rail-muted); letter-spacing: .04em; text-transform: uppercase; }
+.centre b { font-size: 15px; line-height: 1.4; font-weight: 600; }
+.menu { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s1); }
+.menu a, .menu button { width: 100%; min-height: var(--ctl); padding: 0 var(--s3); border-radius: var(--r); border: 0; background: transparent; color: var(--rail-ink);
+  font: 500 15px/1.2 var(--body); display: flex; align-items: center; justify-content: space-between; gap: var(--s2); text-decoration: none; cursor: pointer; text-align: left; }
+.menu a:hover, .menu button:hover { background: rgba(255,255,255,.08); }
+.menu a[aria-current="page"] { background: var(--rail-on); color: #FFFFFF; font-weight: 600; }
+.menu a:focus-visible, .menu button:focus-visible { outline: 3px solid #8EA2FF; outline-offset: 2px; }
+.menu .sub { list-style: none; margin: var(--s1) 0 var(--s1) var(--s3); padding: 0 0 0 var(--s2); border-left: 1px solid rgba(255,255,255,.16); display: flex; flex-direction: column; gap: var(--s1); }
+.menu .sub[hidden] { display: none; }
+.tag { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 2px 6px; border-radius: 5px; background: rgba(255,255,255,.12); color: var(--rail-muted); }
+.tag.new { background: #3FCF9B; color: #0A1118; }
+.caret { transition: transform .15s ease; } button[aria-expanded="true"] .caret { transform: rotate(90deg); }
+.mobilebar { display: none; }
+main { padding: var(--s5) var(--s5) var(--s6); max-width: 1280px; width: 100%; }
+.view[hidden] { display: none; }
+@media (max-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: fixed; z-index: 20; left: 0; top: 0; width: 280px; transform: translateX(-105%); transition: transform .2s ease; }
+  .rail.on { transform: none; box-shadow: 12px 0 40px rgba(0,0,0,.3); }
+  .mobilebar { display: flex; align-items: center; gap: var(--s3); padding: var(--s3); background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 6; }
+  main { padding: var(--s4) var(--s3) var(--s6); }
+}
+
+/* One button, everywhere */
+.btn { height: var(--ctl); padding: 0 var(--s3); border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  font: 600 15px/1 var(--body); display: inline-flex; align-items: center; gap: var(--s2); cursor: pointer; white-space: nowrap; text-decoration: none; }
+.btn:hover { border-color: var(--accent); }
+.btn[aria-pressed="true"], .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn:focus-visible, .cell:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+select, input[type="number"] { height: var(--ctl); padding: 0 var(--s3); border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 600 15px/1 var(--body); }
+label.field { display: flex; flex-direction: column; gap: var(--s2); font-size: 14px; color: var(--muted); }
+
+/* Blocks */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: var(--s4); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--s3); }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s2); }
+.tile b { font: 700 40px/1 var(--display); letter-spacing: -0.02em; }
+.tile.is-over b { color: var(--over); } .tile.is-wait b { color: var(--wait); } .tile.is-open b { color: var(--open); }
+.controls { display: flex; flex-wrap: wrap; gap: var(--s4); align-items: flex-end; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--s3); }
+.step { display: grid; grid-template-columns: 56px 1fr; gap: var(--s3); align-items: center; }
+.demo { width: 56px; height: 56px; border-radius: 8px; display: grid; place-items: center; font: 700 18px/1 var(--display); border: 1px solid var(--line); }
+.demo.d-open { background: color-mix(in srgb, var(--open) 40%, var(--surface)); }
+.demo.d-full { background: var(--full); font: 600 13px/1 var(--body); color: var(--muted); }
+.demo.d-over { background: color-mix(in srgb, var(--over) 18%, var(--surface)); color: var(--over); }
+.demo.d-wait { background: var(--full); font: 600 12px/1.2 var(--body); color: var(--wait); text-align: center; }
+ul.plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s3); }
+.prose { max-width: 68ch; display: flex; flex-direction: column; gap: var(--s3); }
+.prose ul { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: var(--s2); }
+
+/* Forecast grid */
+.gridbox { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+table.grid { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; }
+.grid th, .grid td { padding: 0; border-bottom: 1px solid var(--line); }
+.grid thead th { font: 600 14px/1.3 var(--body); color: var(--ink); padding: var(--s3) var(--s1); text-align: center; min-width: 76px; background: var(--surface); }
+.grid thead th.sep { color: var(--accent); }
+.grid thead th span { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
+.grid .rowhead { position: sticky; left: 0; z-index: 2; background: var(--surface); text-align: left; padding: var(--s3); min-width: 200px; border-right: 1px solid var(--line); }
+.grid .rowhead b { display: block; font: 600 16px/1.3 var(--body); }
+.grid .rowhead span { font-size: 13px; line-height: 1.4; color: var(--muted); display: block; }
+.grid tr.group th { background: var(--bg); font: 700 14px/1 var(--display); letter-spacing: 0.02em; padding: var(--s3); text-align: left; color: var(--ink); }
+.grid tr.total td, .grid tr.total th { border-bottom: 0; }
+.grid tr.total td { text-align: center; font: 600 15px/1 var(--body); padding: var(--s3) 0; }
+.cell { width: 100%; min-width: 76px; height: 68px; border: 0; border-left: 1px solid var(--line); background: var(--full); color: var(--muted); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font: 500 12px/1 var(--body); }
+.cell b { font: 700 22px/1 var(--display); color: var(--ink); }
+.cell.open { background: color-mix(in srgb, var(--open) calc(var(--a) * 1%), var(--surface)); color: var(--ink); }
+.cell.full b { font: 600 14px/1 var(--body); color: var(--muted); }
+.cell.over { background: color-mix(in srgb, var(--over) 18%, var(--surface)); color: var(--over); } .cell.over b { color: var(--over); }
+.cell .w { color: var(--wait); font-weight: 600; }
+.cell:hover, .cell[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--accent); }
+.grid td.sep .cell { border-left: 3px solid var(--accent); }
+
+/* Detail drawer */
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 100%); background: var(--surface); border-left: 1px solid var(--line); z-index: 30;
+  box-shadow: -12px 0 40px rgba(10, 20, 35, .18); padding: var(--s5) var(--s4); overflow-y: auto; display: flex; flex-direction: column; gap: var(--s4); transform: translateX(105%); transition: transform .2s ease; }
+.drawer.on { transform: none; }
+@media (prefers-reduced-motion: reduce) { .drawer, .rail, .caret { transition: none; } }
+.dhead { display: grid; grid-template-columns: 1fr auto; gap: var(--s3); align-items: start; }
+.big { font: 700 44px/1.1 var(--display); letter-spacing: -0.02em; }
+.bar { height: 10px; border-radius: 5px; background: var(--full); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); }
+.bar.is-over i { background: var(--over); }
+.evt { display: grid; grid-template-columns: 28px 1fr; gap: var(--s3); align-items: start; }
+.evt .mk { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; font: 700 16px/1 var(--body); color: var(--surface); }
+.evt.in .mk { background: var(--accent); color: var(--accent-ink); } .evt.out .mk { background: var(--muted); }
+.chk { display: grid; grid-template-columns: 12px 1fr; gap: var(--s3); align-items: baseline; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--open); display: inline-block; }
+.dot.wait { background: var(--wait); } .dot.over { background: var(--over); }
+.chips { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.chip { border: 1px solid var(--line); border-radius: 6px; padding: var(--s1) var(--s2); font-size: 13px; }
+details summary { cursor: pointer; font-weight: 600; }
+
+/* Tables and cards */
+.tablebox { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+table.list { border-collapse: collapse; width: 100%; min-width: 720px; }
+.list th, .list td { text-align: left; padding: var(--s3); border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.5; vertical-align: top; }
+.list th { font-size: 13px; color: var(--muted); font-weight: 600; }
+.list th, .list td:not(:last-child) { white-space: nowrap; }
+.list tr:last-child td { border-bottom: 0; }
+.pill { display: inline-block; border-radius: 6px; padding: 2px var(--s2); font-size: 13px; font-weight: 600; background: var(--full); white-space: nowrap; }
+.pill.wait { background: color-mix(in srgb, var(--wait) 18%, var(--surface)); color: var(--wait); }
+.pill.open { background: color-mix(in srgb, var(--open) 18%, var(--surface)); color: var(--open); }
+.pill.over { background: color-mix(in srgb, var(--over) 18%, var(--surface)); color: var(--over); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--s3); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
+.card .count { font: 700 30px/1 var(--display); }
+dl.facts { display: grid; grid-template-columns: auto 1fr; gap: var(--s2) var(--s3); margin: 0; font-size: 15px; }
+dl.facts dt { color: var(--muted); white-space: nowrap; } dl.facts dd { margin: 0; font-weight: 600; text-align: right; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--s3); align-items: start; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail" id="rail" aria-label="Main menu">
+    <div class="brand"><i></i>Newstead</div>
+    <div class="centre"><span>Selected centre</span><b>Newstead Academy Childcare, Richmond Hill</b></div>
+    <ul class="menu" id="menu"></ul>
+  </aside>
+  <div>
+    <div class="mobilebar"><button class="btn" type="button" id="menuBtn" aria-controls="rail" aria-expanded="false">Menu</button><b id="mobileTitle"></b></div>
+    <main>
+      <section class="view stack" id="view-dashboard">
+        <div class="stack-s">
+          <h1>Newstead today</h1>
+          <p class="lead" id="dashLead"></p>
+        </div>
+        <div class="tiles" id="tiles"></div>
+        <div class="stack-s">
+          <div class="row" style="justify-content:space-between"><h2>Rooms right now</h2><a class="btn btn-primary" href="#forecast">Open the 24-month forecast</a></div>
+          <div class="cards" id="dashRooms"></div>
+        </div>
+        <div class="two">
+          <div class="panel stack-s"><h2>Needs attention</h2><ul class="plain" id="dashAlerts"></ul></div>
+          <div class="panel stack-s"><h2>Coming up in the next 3 months</h2><ul class="plain" id="dashSoon"></ul></div>
+        </div>
+      </section>
+
+      <section class="view stack" id="view-forecast" hidden>
+        <div class="stack-s">
+          <h1>Capacity forecast</h1>
+          <p class="lead" id="fcLead"></p>
+        </div>
+        <div class="panel stack-s">
+          <h3>How to read the grid</h3>
+          <div class="steps">
+            <div class="step"><div class="demo d-open">2</div><p>A number is how many spaces are open that month. Darker green means more.</p></div>
+            <div class="step"><div class="demo d-full">Full</div><p>The room has no open space.</p></div>
+            <div class="step"><div class="demo d-wait">5<br>waiting</div><p>Children old enough to move up who have no space to move into yet.</p></div>
+            <div class="step"><div class="demo d-over">+1</div><p>The room has more children than its limit.</p></div>
+          </div>
+          <p class="muted">Select any box to see which children and which rules produce that number. The blue line marks September, when the school year starts.</p>
+        </div>
+        <div class="panel stack-s">
+          <h3>Try a what-if</h3>
+          <div class="controls">
+            <label class="field" for="moveAge">Move toddlers up to preschool at
+              <select id="moveAge"><option value="30">30 months (standard)</option><option value="29">29 months</option><option value="28">28 months</option><option value="27">27 months</option></select>
+            </label>
+            <label class="field" for="leaveAge">Children leave for school the September they turn
+              <select id="leaveAge"><option value="6">6 (Grade 1)</option><option value="5">5 (senior kindergarten)</option><option value="4">4 (junior kindergarten)</option></select>
+            </label>
+            <button class="btn" id="reset" type="button">Reset to defaults</button>
+          </div>
+          <p class="muted" id="scenarioNote"></p>
+        </div>
+        <div class="gridbox"><table class="grid" id="grid"></table></div>
+        <p class="muted">The forecast adds no new enrolments, so an open space is one you can offer to a family. All assumptions are listed under <a href="#help">Help</a>.</p>
+      </section>
+
+      <section class="view stack" id="view-children" hidden>
+        <div class="stack-s">
+          <h1>Who moves next</h1>
+          <p class="lead">Each child's next age milestone, and the month the forecast finds them a space.</p>
+        </div>
+        <div class="row" data-filter="children"></div>
+        <div class="tablebox"><table class="list" id="kidTable"></table></div>
+      </section>
+
+      <section class="view stack" id="view-rosters" hidden>
+        <div class="stack-s">
+          <h1>Classroom rosters</h1>
+          <p class="lead">Who is in each room today, from the Lillio export. Children are shown by initials only.</p>
+        </div>
+        <div class="row" data-filter="rosters"></div>
+        <div class="tablebox"><table class="list" id="rosterTable"></table></div>
+      </section>
+
+      <section class="view stack" id="view-rooms" hidden>
+        <div class="stack-s">
+          <h1>Classrooms</h1>
+          <p class="lead">Licensed capacity comes from the Ministry of Education licence. Lower a room's operating capacity to plan with fewer spaces than the licence allows.</p>
+        </div>
+        <div class="cards" id="roomCards"></div>
+      </section>
+
+      <section class="view stack" id="view-reports" hidden>
+        <div class="stack-s">
+          <h1>Reports</h1>
+          <p class="lead">Take the forecast into Excel or Google Sheets.</p>
+        </div>
+        <div class="panel stack-s">
+          <h2>Open spaces by room and month</h2>
+          <p>Copies the forecast grid as a table. Paste it into a spreadsheet.</p>
+          <div class="row"><button class="btn btn-primary" type="button" id="copyBtn">Copy forecast table</button><span class="muted" id="copyMsg" role="status"></span></div>
+        </div>
+        <div class="tablebox"><table class="list" id="reportTable"></table></div>
+      </section>
+
+      <section class="view stack" id="view-help" hidden>
+        <div class="stack-s">
+          <h1>Help</h1>
+          <p class="lead">How the forecast works, and where its rules come from.</p>
+        </div>
+        <div class="panel prose"><h2>What the forecast assumes</h2><ul id="assume"></ul></div>
+        <div class="panel prose">
+          <h2>Licence notes</h2>
+          <ul>
+            <li>Total licensed capacity is 167 and must not be exceeded at any time.</li>
+            <li>Mixed-age grouping is approved under subsections 8(2) and 8(3) of O. Reg. 137/15.</li>
+            <li>The room Lillio calls Kindergarten 2 is licensed as Preschool 4. Preschool limits apply to it: 24 children, one staff member per 8, children under 6.</li>
+            <li>Preschool 4 and Kindergarten 1 have an alternate capacity for primary/junior school age (24 and 26). The forecast uses primary capacity only.</li>
+            <li>The shared playground holds 63 children at once. That affects daily scheduling, not enrolment.</li>
+          </ul>
+          <p class="muted">Rule source: <a href="https://www.ontario.ca/laws/regulation/150137">O. Reg. 137/15</a>, Schedule 1 and section 8. <span id="rulever"></span>.</p>
+        </div>
+      </section>
+
+      <section class="view stack" id="view-soon" hidden>
+        <div class="stack-s">
+          <h1 id="soonTitle"></h1>
+          <p class="lead" id="soonText"></p>
+        </div>
+        <div class="panel stack-s">
+          <h2>Not built yet</h2>
+          <p>This section is in the menu so the layout matches what your team already knows. It has no data or tools behind it in this version.</p>
+          <div class="row"><a class="btn btn-primary" href="#forecast">Go to the capacity forecast</a></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<aside class="drawer" id="drawer" aria-label="Details for the selected box" aria-hidden="true"></aside>
+
+<script>/* Capacity forecast engine. Rules only, no estimates.
+   Source of rules: O. Reg. 137/15 Schedule 1 and s. 8(3); Newstead licence (Nov 2026). */
+const RULES = {
+  version: 'O. Reg. 137/15, consolidation of July 1, 2026',
+  Toddler:      { minM: 18, maxM: 30, ratio: 5,  maxGroup: 15, youngShare: 0.20 },
+  Preschool:    { minM: 30, maxM: 72, ratio: 8,  maxGroup: 24, youngShare: 0.20 },
+  Kindergarten: { minM: 44, maxM: 84, ratio: 13, maxGroup: 26, youngShare: 0 }
+};
+const ROOMS = [
+  { id: 'T1', name: 'Toddler 1',      licName: 'Toddler 1',      lic: 'Toddler',      runsAs: 'Toddler',      licensed: 15 },
+  { id: 'T2', name: 'Toddler 2',      licName: 'Toddler 2',      lic: 'Toddler',      runsAs: 'Toddler',      licensed: 15 },
+  { id: 'T3', name: 'Toddler 3',      licName: 'Toddler 3',      lic: 'Toddler',      runsAs: 'Toddler',      licensed: 15 },
+  { id: 'P1', name: 'Preschool 1',    licName: 'Preschool 1',    lic: 'Preschool',    runsAs: 'Preschool',    licensed: 24 },
+  { id: 'P2', name: 'Preschool 2',    licName: 'Preschool 2',    lic: 'Preschool',    runsAs: 'Preschool',    licensed: 24 },
+  { id: 'P3', name: 'Preschool 3',    licName: 'Preschool 3',    lic: 'Preschool',    runsAs: 'Preschool',    licensed: 24 },
+  { id: 'K2', name: 'Kindergarten 2', licName: 'Preschool 4',    lic: 'Preschool',    runsAs: 'Kindergarten', licensed: 24 },
+  { id: 'K1', name: 'Kindergarten 1', licName: 'Kindergarten 1', lic: 'Kindergarten', runsAs: 'Kindergarten', licensed: 26 }
+];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function ym(s) { const p = s.split('-'); return { y: +p[0], m: +p[1] }; }
+function ageM(birth, y, m) { const b = ym(birth); return (y - b.y) * 12 + (m - b.m); }
+function youngLimit(room, cap) { return Math.round(RULES[room.lic].youngShare * cap + 1e-9); }
+
+/* opts: { horizon, moveAge, leaveAge, caps:{roomId:n} } */
+function forecast(data, opts) {
+  const o = Object.assign({ horizon: 24, moveAge: 30, leaveAge: 6, caps: {} }, opts || {});
+  const rooms = ROOMS.map(r => Object.assign({}, r, { cap: Math.min(r.licensed, o.caps[r.id] != null ? o.caps[r.id] : r.licensed) }));
+  const byId = {}; rooms.forEach(r => byId[r.id] = r);
+  const kids = {}; data.kids.forEach(k => kids[k.id] = k);
+  const where = {};                       // child id -> room id (absent = not enrolled)
+  data.kids.forEach(k => { if (k.r) where[k.id] = k.r; });
+  const start = ym(data.asOf.slice(0, 7));
+  const out = [];
+  const journey = {};                     // child id -> [{mi, text}]
+  const note = (id, mi, text) => { (journey[id] = journey[id] || []).push({ mi, text }); };
+  const inRoom = rid => Object.keys(where).filter(id => where[id] === rid).map(Number);
+  const count = rid => inRoom(rid).length;
+
+  for (let mi = 0; mi <= o.horizon; mi++) {
+    const idx = start.m - 1 + mi, y = start.y + Math.floor(idx / 12), m = idx % 12 + 1;
+    const label = MONTHS[m - 1] + ' ' + y, key = y + '-' + String(m).padStart(2, '0');
+    const ev = {}; rooms.forEach(r => ev[r.id] = []);
+    const age = id => ageM(kids[id].b, y, m);
+    const tag = id => kids[id].n + ' (' + fmtAge(age(id)) + ')';
+    const move = (id, to, why) => {
+      const from = where[id];
+      if (from) ev[from].push({ dir: 'out', id, text: tag(id) + ' moves to ' + byId[to].name, why });
+      ev[to].push({ dir: 'in', id, text: tag(id) + (from ? ' moves in from ' + byId[from].name : ' starts'), why });
+      where[id] = to;
+      note(id, mi, (from ? 'Moves to ' : 'Starts in ') + byId[to].name + ' (' + why + ')');
+    };
+    const leave = (id, why) => {
+      ev[where[id]].push({ dir: 'out', id, text: tag(id) + ' leaves the centre', why });
+      note(id, mi, 'Leaves the centre (' + why + ')');
+      delete where[id];
+    };
+
+    // 1. End dates recorded in the roster
+    Object.keys(where).map(Number).forEach(id => {
+      const e = kids[id].e; if (e && e.slice(0, 7) === key) leave(id, 'end date recorded in Lillio');
+    });
+    // 2. September: school leavers, then kindergarten moves
+    if (m === 9) {
+      Object.keys(where).map(Number).forEach(id => {
+        if (ym(kids[id].b).y <= y - o.leaveAge) leave(id, 'turns ' + o.leaveAge + ' in ' + y + ', starts school in September');
+      });
+      const oldest = (a, b) => kids[a].b < kids[b].b ? -1 : kids[a].b > kids[b].b ? 1 : a - b;
+      // senior kindergarten children in K2 consolidate into K1 where there is room
+      inRoom('K2').filter(id => ym(kids[id].b).y <= y - 5).sort(oldest).forEach(id => {
+        if (count('K1') < byId.K1.cap) move(id, 'K1', 'turns 5 in ' + y + ', senior kindergarten');
+      });
+      // preschoolers turning 4 this year move to a kindergarten class
+      ['P1', 'P2', 'P3'].flatMap(inRoom).filter(id => ym(kids[id].b).y <= y - 4).sort(oldest).forEach(id => {
+        const to = count('K2') < byId.K2.cap ? 'K2' : (count('K1') < byId.K1.cap && age(id) >= RULES.Kindergarten.minM ? 'K1' : null);
+        if (to) move(id, to, 'turns 4 in ' + y + ', kindergarten class starts in September');
+      });
+    }
+    // 3. Starts and moves already recorded in the roster
+    data.plans.forEach(p => { if (p.d.slice(0, 7) === key) move(p.id, p.r, 'start date recorded in Lillio'); });
+    // 4. A child reaching 6 cannot stay in a preschool-licensed room
+    rooms.filter(r => r.lic === 'Preschool').flatMap(r => inRoom(r.id)).forEach(id => {
+      if (age(id) >= RULES.Preschool.maxM && count('K1') < byId.K1.cap) move(id, 'K1', 'reaches 6 years, the upper limit of a preschool licence');
+    });
+    // 5. Toddlers move up to preschool, oldest first, where the rules allow
+    rooms.filter(r => r.runsAs === 'Toddler').flatMap(r => inRoom(r.id))
+      .filter(id => age(id) >= o.moveAge)
+      .sort((a, b) => kids[a].b < kids[b].b ? -1 : kids[a].b > kids[b].b ? 1 : a - b)
+      .forEach(id => {
+        const early = age(id) < RULES.Preschool.minM;
+        const options = rooms.filter(r => r.runsAs === 'Preschool').filter(r => {
+          if (count(r.id) >= r.cap) return false;
+          if (!early) return true;
+          return inRoom(r.id).filter(c => age(c) < RULES.Preschool.minM).length < youngLimit(r, r.cap);
+        }).sort((a, b) => (b.cap - count(b.id)) - (a.cap - count(a.id)));
+        if (options.length) move(id, options[0].id, early ? 'early move at ' + age(id) + ' months under mixed-age approval' : 'reached 30 months, preschool age');
+      });
+
+    // Snapshot at month end
+    const snap = { mi, y, m, label, key, rooms: {} };
+    rooms.forEach(r => {
+      const ids = inRoom(r.id), rule = RULES[r.lic], flags = [];
+      const young = ids.filter(id => age(id) < rule.minM), old = ids.filter(id => age(id) >= rule.maxM);
+      const yl = youngLimit(r, r.cap);
+      if (ids.length > r.cap) flags.push({ level: 'over', text: (ids.length - r.cap) + ' more than the room allows' });
+      if (old.length) flags.push({ level: 'wait', text: old.length + (old.length === 1 ? ' child is ' : ' children are ') + (r.lic === 'Toddler' ? '30 months or older and waiting for a preschool space' : 'past the upper age of this licence and waiting for a space'), ids: old });
+      if (young.length > yl) flags.push({ level: 'over', text: young.length + ' children younger than the licence age range; the mixed-age limit is ' + yl });
+      snap.rooms[r.id] = {
+        ids: ids.sort((a, b) => kids[a].b < kids[b].b ? -1 : 1), n: ids.length, cap: r.cap, open: r.cap - ids.length,
+        young: young.length, youngLimit: yl, waiting: old.length,
+        staff: Math.ceil(ids.length / rule.ratio), ratio: rule.ratio, flags, events: ev[r.id]
+      };
+    });
+    snap.total = rooms.reduce((s, r) => s + snap.rooms[r.id].n, 0);
+    out.push(snap);
+  }
+  return { months: out, rooms, journey, opts: o };
+}
+function fmtAge(m) { const y = Math.floor(m / 12), r = m % 12; return y ? y + 'y ' + r + 'm' : r + 'm'; }
+
+</script>
+<script>
+const DATA = {"asOf":"2026-11-16","kids":[{"id":1,"n":"L.M.","b":"2025-04","r":"T2","s":"2026-11"},{"id":2,"n":"R.Z.","b":"2025-02","r":"T2","s":"2026-11"},{"id":3,"n":"C.H.","b":"2024-10","r":"T2","s":"2026-10"},{"id":4,"n":"L.Z.","b":"2024-10","r":"T2","s":"2026-10"},{"id":5,"n":"M.Z.","b":"2025-04","r":"T2","s":"2026-10"},{"id":6,"n":"R.L.","b":"2024-12","r":"T2","s":"2026-09"},{"id":7,"n":"L.S.","b":"2024-11","r":"T2","s":"2026-09"},{"id":8,"n":"S.Y.","b":"2025-03","r":"T2","s":"2026-09"},{"id":9,"n":"N.C.","b":"2025-04","r":"T2","s":"2026-09"},{"id":10,"n":"J.Y.","b":"2024-10","r":"T2","s":"2026-09"},{"id":11,"n":"L.O.","b":"2025-04","r":"T2","s":"2026-09"},{"id":12,"n":"G.G.","b":"2024-10","r":"T2","s":"2026-09"},{"id":13,"n":"M.J.","b":"2025-02","r":"T2","s":"2026-08"},{"id":14,"n":"M.M.","b":"2024-08","r":"T2","s":"2026-04"},{"id":15,"n":"A.S.","b":"2024-09","r":"T2","s":"2026-03"},{"id":16,"n":"E.W.","b":"2024-09","r":"T2","s":"2026-03"},{"id":17,"n":"A.L.","b":"2023-07","r":"P1","s":"2026-11"},{"id":18,"n":"E.Z.","b":"2024-06","r":"P1","s":"2026-10"},{"id":19,"n":"E.C.","b":"2024-01","r":"P1","s":"2026-09"},{"id":20,"n":"J.L.","b":"2023-10","r":"P1","s":"2026-09"},{"id":21,"n":"H.L.","b":"2023-12","r":"P1","s":"2026-09"},{"id":22,"n":"C.T.","b":"2023-01","r":"P1","s":"2026-09"},{"id":23,"n":"T.B.","b":"2024-04","r":"P1","s":"2026-09"},{"id":24,"n":"B.G.","b":"2023-12","r":"P1","s":"2026-08"},{"id":25,"n":"A.C.","b":"2023-04","r":"P1","s":"2026-07"},{"id":26,"n":"E.H.","b":"2023-09","r":"P1","s":"2026-04"},{"id":27,"n":"L.M.","b":"2023-08","r":"P1","s":"2026-03"},{"id":28,"n":"V.P.","b":"2023-09","r":"P1","s":"2026-03"},{"id":29,"n":"U.C.","b":"2023-09","r":"P1","s":"2026-02"},{"id":30,"n":"I.W.","b":"2023-03","r":"P1","s":"2026-02"},{"id":31,"n":"A.W.","b":"2023-07","r":"P1","s":"2026-02"},{"id":32,"n":"A.W.","b":"2023-07","r":"P1","s":"2026-02"},{"id":33,"n":"H.F.","b":"2023-09","r":"P1","s":"2026-02"},{"id":34,"n":"T.L.","b":"2023-08","r":"P1","s":"2026-01"},{"id":35,"n":"M.F.","b":"2023-06","r":"P1","s":"2026-01"},{"id":36,"n":"A.L.","b":"2023-06","r":"P1","s":"2026-01"},{"id":37,"n":"M.N.","b":"2023-06","r":"P1","s":"2026-01"},{"id":38,"n":"D.H.","b":"2023-06","r":"P1","s":"2026-01"},{"id":39,"n":"O.T.","b":"2023-06","r":"P1","s":"2025-09"},{"id":40,"n":"A.D.","b":"2023-03","r":"P1","s":"2025-09"},{"id":41,"n":"O.C.","b":"2024-12","r":"T3","s":"2026-11"},{"id":42,"n":"M.L.","b":"2025-04","r":"T3","s":"2026-10"},{"id":43,"n":"L.L.","b":"2025-03","r":"T3","s":"2026-09"},{"id":44,"n":"L.C.","b":"2025-03","r":"T3","s":"2026-09"},{"id":45,"n":"N.S.","b":"2025-03","r":"T3","s":"2026-09"},{"id":46,"n":"L.H.","b":"2024-12","r":"T3","s":"2026-09"},{"id":47,"n":"A.A.","b":"2025-01","r":"T3","s":"2026-08"},{"id":48,"n":"L.D.","b":"2024-08","r":"T3","s":"2026-05"},{"id":49,"n":"C.Z.","b":"2024-12","r":"T3","s":"2026-05"},{"id":50,"n":"C.Z.","b":"2024-12","r":"T3","s":"2026-04"},{"id":51,"n":"T.M.","b":"2024-11","r":"T3","s":"2026-03"},{"id":52,"n":"S.L.","b":"2024-09","r":"T3","s":"2026-03"},{"id":53,"n":"A.S.","b":"2024-07","r":"T3","s":"2026-03"},{"id":54,"n":"K.J.","b":"2024-07","r":"T3","s":"2026-02"},{"id":55,"n":"A.C.","b":"2024-01","r":"P2","s":"2026-10"},{"id":56,"n":"A.T.","b":"2024-05","r":"P2","s":"2026-09"},{"id":57,"n":"Y.J.","b":"2024-04","r":"P2","s":"2026-09"},{"id":58,"n":"H.H.","b":"2024-04","r":"P2","s":"2026-09"},{"id":59,"n":"K.R.","b":"2024-01","r":"P2","s":"2026-09"},{"id":60,"n":"C.W.","b":"2024-02","r":"P2","s":"2026-09"},{"id":61,"n":"M.M.","b":"2024-05","r":"P2","s":"2026-09"},{"id":62,"n":"D.S.","b":"2024-05","r":"P2","s":"2026-09"},{"id":63,"n":"E.Y.","b":"2024-04","r":"P2","s":"2026-09"},{"id":64,"n":"O.T.","b":"2023-11","r":"P2","s":"2026-09"},{"id":65,"n":"Y.Y.","b":"2023-09","r":"P2","s":"2026-09"},{"id":66,"n":"E.X.","b":"2024-02","r":"P2","s":"2026-09"},{"id":67,"n":"R.S.","b":"2024-04","r":"P2","s":"2026-09"},{"id":68,"n":"J.C.","b":"2024-01","r":"P2","s":"2026-09"},{"id":69,"n":"J.L.","b":"2024-02","r":"P2","s":"2026-08"},{"id":70,"n":"E.G.","b":"2023-10","r":"P2","s":"2026-08"},{"id":71,"n":"C.C.","b":"2023-10","r":"P2","s":"2026-08"},{"id":72,"n":"I.H.","b":"2023-08","r":"P2","s":"2026-08"},{"id":73,"n":"L.K.","b":"2023-10","r":"P2","s":"2026-03"},{"id":74,"n":"M.Y.","b":"2023-07","r":"P2","s":"2026-01"},{"id":75,"n":"E.L.","b":"2023-03","r":"P2","s":"2025-09"},{"id":76,"n":"S.N.","b":"2023-02","r":"P2","s":"2025-09"},{"id":77,"n":"T.P.","b":"2023-03","r":"P2","s":"2025-07"},{"id":78,"n":"L.L.","b":"2024-06","r":"P3","s":"2026-10"},{"id":79,"n":"L.O.","b":"2024-06","r":"P3","s":"2026-10"},{"id":80,"n":"C.R.","b":"2024-01","r":"P3","s":"2026-10"},{"id":81,"n":"A.L.","b":"2024-06","r":"P3","s":"2026-10"},{"id":82,"n":"A.L.","b":"2024-03","r":"P3","s":"2026-09"},{"id":83,"n":"H.H.","b":"2023-02","r":"P3","s":"2026-09"},{"id":84,"n":"H.Y.","b":"2023-05","r":"P3","s":"2026-09"},{"id":85,"n":"J.Q.","b":"2023-06","r":"P3","s":"2026-09"},{"id":86,"n":"L.F.","b":"2023-05","r":"P3","s":"2026-09"},{"id":87,"n":"C.L.","b":"2023-03","r":"P3","s":"2026-09"},{"id":88,"n":"S.L.","b":"2023-05","r":"P3","s":"2026-09"},{"id":89,"n":"A.L.","b":"2023-12","r":"P3","s":"2026-08"},{"id":90,"n":"C.L.","b":"2024-02","r":"P3","s":"2026-08"},{"id":91,"n":"A.L.","b":"2023-12","r":"P3","s":"2026-08"},{"id":92,"n":"L.L.","b":"2023-08","r":"P3","s":"2026-08"},{"id":93,"n":"K.L.","b":"2023-08","r":"P3","s":"2026-04"},{"id":94,"n":"Z.C.","b":"2023-08","r":"P3","s":"2026-01"},{"id":95,"n":"N.A.","b":"2023-06","r":"P3","s":"2026-01"},{"id":96,"n":"E.Z.","b":"2023-05","r":"P3","s":"2025-09"},{"id":97,"n":"Z.Z.","b":"2023-05","r":"P3","s":"2025-09"},{"id":98,"n":"L.Z.","b":"2023-05","r":"P3","s":"2025-09"},{"id":99,"n":"O.J.","b":"2023-05","r":"P3","s":"2025-09"},{"id":100,"n":"A.Y.","b":"2023-05","r":"P3","s":"2025-09"},{"id":101,"n":"K.X.","b":"2023-05","r":"P3","s":"2025-09"},{"id":102,"n":"H.P.","b":"2025-06","r":"T1","s":"2026-10"},{"id":103,"n":"S.L.","b":"2024-12","r":"T1","s":"2026-09"},{"id":104,"n":"L.W.","b":"2024-10","r":"T1","s":"2026-09"},{"id":105,"n":"S.N.","b":"2025-03","r":"T1","s":"2026-09"},{"id":106,"n":"Q.L.","b":"2025-01","r":"T1","s":"2026-09"},{"id":107,"n":"E.M.","b":"2024-12","r":"T1","s":"2026-09"},{"id":108,"n":"M.T.","b":"2025-04","r":"T1","s":"2026-09"},{"id":109,"n":"C.W.","b":"2024-09","r":"T1","s":"2026-09"},{"id":110,"n":"S.D.","b":"2024-07","r":"T1","s":"2026-09"},{"id":111,"n":"K.K.","b":"2024-07","r":"T1","s":"2026-09"},{"id":112,"n":"L.S.","b":"2024-12","r":"T1","s":"2026-08"},{"id":113,"n":"E.L.","b":"2024-12","r":"T1","s":"2026-06"},{"id":114,"n":"S.L.","b":"2024-11","r":"T1","s":"2026-05"},{"id":115,"n":"E.C.","b":"2024-12","r":"T1","s":"2026-03"},{"id":116,"n":"A.D.","b":"2024-06","r":"T1","s":"2026-01"},{"id":117,"n":"L.S.","b":"2023-02","r":"K2","s":"2026-09"},{"id":118,"n":"E.S.","b":"2022-12","r":"K2","s":"2026-09"},{"id":119,"n":"A.L.","b":"2022-07","r":"K2","s":"2026-09"},{"id":120,"n":"R.S.","b":"2022-06","r":"K2","s":"2026-09"},{"id":121,"n":"S.G.","b":"2022-02","r":"K2","s":"2026-09"},{"id":122,"n":"Z.S.","b":"2022-11","r":"K2","s":"2026-09"},{"id":123,"n":"C.N.","b":"2022-11","r":"K2","s":"2026-09"},{"id":124,"n":"S.Z.","b":"2022-10","r":"K2","s":"2026-09"},{"id":125,"n":"M.Z.","b":"2023-02","r":"K2","s":"2026-09"},{"id":126,"n":"M.W.","b":"2022-10","r":"K2","s":"2026-09"},{"id":127,"n":"E.H.","b":"2022-05","r":"K2","s":"2026-09"},{"id":128,"n":"A.L.","b":"2022-10","r":"K2","s":"2026-09"},{"id":129,"n":"N.L.","b":"2022-08","r":"K2","s":"2026-09"},{"id":130,"n":"L.L.","b":"2022-09","r":"K2","s":"2026-08"},{"id":131,"n":"L.L.","b":"2022-06","r":"K2","s":"2026-06"},{"id":132,"n":"K.Q.","b":"2022-12","r":"K2","s":"2025-09"},{"id":133,"n":"R.H.","b":"2022-12","r":"K2","s":"2025-09"},{"id":134,"n":"K.M.","b":"2022-04","r":"K2","s":"2024-11"},{"id":135,"n":"L.C.","b":"2022-06","r":"K2","s":"2024-10"},{"id":136,"n":"L.K.","b":"2022-01","r":"K2","s":"2024-09"},{"id":137,"n":"R.K.","b":"2022-01","r":"K2","s":"2024-09"},{"id":138,"n":"A.Y.","b":"2022-03","r":"K2","s":"2024-09"},{"id":139,"n":"A.C.","b":"2022-06","r":"K1","s":"2026-09"},{"id":140,"n":"J.G.","b":"2022-10","r":"K1","s":"2026-09"},{"id":141,"n":"Y.P.","b":"2022-01","r":"K1","s":"2026-09"},{"id":142,"n":"E.L.","b":"2022-03","r":"K1","s":"2026-09"},{"id":143,"n":"G.G.","b":"2021-11","r":"K1","s":"2026-09"},{"id":144,"n":"R.G.","b":"2022-06","r":"K1","s":"2026-09"},{"id":145,"n":"E.L.","b":"2022-05","r":"K1","s":"2026-09"},{"id":146,"n":"A.T.","b":"2021-07","r":"K1","s":"2026-09"},{"id":147,"n":"L.Z.","b":"2021-05","r":"K1","s":"2026-09"},{"id":148,"n":"A.C.","b":"2022-06","r":"K1","s":"2026-09"},{"id":149,"n":"N.Z.","b":"2022-02","r":"K1","s":"2026-09"},{"id":150,"n":"J.V.","b":"2021-01","r":"K1","s":"2026-09"},{"id":151,"n":"A.C.","b":"2021-11","r":"K1","s":"2026-08"},{"id":152,"n":"J.L.","b":"2021-05","r":"K1","s":"2026-08"},{"id":153,"n":"L.Z.","b":"2021-09","r":"K1","s":"2026-08"},{"id":154,"n":"V.Z.","b":"2021-06","r":"K1","s":"2026-08"},{"id":155,"n":"C.Z.","b":"2021-07","r":"K1","s":"2025-09"},{"id":156,"n":"A.L.","b":"2021-10","r":"K1","s":"2025-09"},{"id":157,"n":"E.H.","b":"2021-03","r":"K1","s":"2025-09"},{"id":158,"n":"O.Y.","b":"2021-09","r":"K1","s":"2025-09"},{"id":159,"n":"B.M.","b":"2021-10","r":"K1","s":"2025-09"},{"id":160,"n":"K.Y.","b":"2021-09","r":"K1","s":"2025-09"},{"id":161,"n":"E.L.","b":"2021-05","r":"K1","s":"2025-09"},{"id":162,"n":"A.Y.","b":"2021-04","r":"K1","s":"2025-09"},{"id":163,"n":"E.Z.","b":"2021-03","r":"K1","s":"2025-02"},{"id":164,"n":"S.W.","b":"2021-01","r":"K1","s":"2025-01"},{"id":165,"n":"R.S.","b":"2021-04","r":"K1","s":"2025-01"},{"id":166,"n":"A.P.","b":"2025-08","r":null,"s":"2027-01"}],"plans":[{"id":166,"r":"T3","d":"2027-01-04"},{"id":14,"r":"P2","d":"2026-11-23"}]};
+const DEF = { moveAge: 30, leaveAge: 6, caps: {} };
+let opts = JSON.parse(JSON.stringify(DEF)), F = null, sel = null, filters = { children: 'all', rosters: 'all' }, groupOpen = true;
+try { const s = JSON.parse(localStorage.getItem('nf-opts') || 'null'); if (s) opts = Object.assign(opts, s); } catch (e) {}
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const kidsById = {}; DATA.kids.forEach(k => kidsById[k.id] = k);
+const GROUPS = [['Toddler', 'Toddler rooms'], ['Preschool', 'Preschool rooms'], ['Kindergarten', 'Kindergarten classes']];
+const AGE_TEXT = { Toddler: '18 to under 30 months', Preschool: '30 months to under 6 years', Kindergarten: '44 months to under 7 years' };
+const plural = (n, a, b) => n + ' ' + (n === 1 ? a : b);
+function monthLabel(birth, add) { const p = birth.split('-'); const i = (+p[1] - 1) + add; return MONTHS[((i % 12) + 12) % 12] + ' ' + (+p[0] + Math.floor(i / 12)); }
+function save() { try { localStorage.setItem('nf-opts', JSON.stringify(opts)); } catch (e) {} }
+
+/* Menu: built sections link to a view; planned ones open the "not built yet" page */
+const MENU = [
+  { id: 'dashboard', label: 'Dashboard' },
+  { group: 'Manage enrollment', items: [
+    { id: 'forecast', label: 'Capacity forecast', tag: 'new' },
+    { id: 'children', label: 'Who moves next' },
+    { id: 'rosters', label: 'Classroom rosters' },
+    { id: 'waitlist', label: 'Registration and waitlist', soon: 'Applications, the waiting list, and matching waiting families to the openings the forecast finds.' }
+  ] },
+  { id: 'rooms', label: 'Classrooms' },
+  { id: 'actions', label: 'Classroom actions', soon: 'Daily check-in, attendance, naps, meals and activity entries for each room.' },
+  { id: 'photos', label: 'Photos and videos', soon: 'The photo and video journal shared with families.' },
+  { id: 'messaging', label: 'Messaging', soon: 'Messages between the centre, educators and families.' },
+  { id: 'contacts', label: 'Contacts', soon: 'Parent, guardian and emergency contact details.' },
+  { id: 'billing', label: 'Billing and subsidies', soon: 'Invoices, payments and subsidy tracking.' },
+  { id: 'calendars', label: 'Menus and calendars', soon: 'Meal menus and the centre calendar.' },
+  { id: 'reports', label: 'Reports' },
+  { id: 'signin', label: 'Parent sign-in', soon: 'Drop-off and pick-up sign-in for families.' },
+  { id: 'configuration', label: 'Logins and configuration', soon: 'Staff logins, centre details and system options.' },
+  { id: 'help', label: 'Help' }
+];
+const FLAT = MENU.flatMap(m => m.items || [m]);
+const BUILT = FLAT.filter(m => !m.soon).map(m => m.id);
+function renderMenu(cur) {
+  const link = m => '<li><a href="#' + m.id + '"' + (m.id === cur ? ' aria-current="page"' : '') + '><span>' + esc(m.label) + '</span>' + (m.tag ? '<span class="tag new">New</span>' : m.soon ? '<span class="tag">Soon</span>' : '') + '</a></li>';
+  $('menu').innerHTML = MENU.map(m => m.items
+    ? '<li><button type="button" id="grpBtn" aria-expanded="' + groupOpen + '" aria-controls="grpList"><span>' + esc(m.group) + '</span><span class="caret" aria-hidden="true">›</span></button><ul class="sub" id="grpList"' + (groupOpen ? '' : ' hidden') + '>' + m.items.map(link).join('') + '</ul></li>'
+    : link(m)).join('');
+}
+
+function run() {
+  F = forecast(DATA, { horizon: 24, moveAge: +opts.moveAge, leaveAge: +opts.leaveAge, caps: opts.caps });
+  renderDashboard(); renderForecastHead(); renderGrid(); renderAssume(); renderChildren(); renderRosters(); renderRooms(); renderReport();
+  if (sel) openCell(sel.rid, sel.mi, true);
+}
+
+function facts() {
+  const m0 = F.months[0];
+  const open0 = F.rooms.reduce((s, r) => s + Math.max(0, m0.rooms[r.id].open), 0);
+  const over0 = F.rooms.filter(r => m0.rooms[r.id].open < 0);
+  let peak = { n: 0, label: '' };
+  F.months.forEach(s => { const n = F.rooms.reduce((a, r) => a + (r.runsAs === 'Toddler' ? s.rooms[r.id].waiting : 0), 0); if (n > peak.n) peak = { n, label: s.label }; });
+  let jump = null;
+  for (let i = 1; i < F.months.length && !jump; i++) {
+    const a = F.rooms.reduce((s, r) => s + Math.max(0, F.months[i].rooms[r.id].open), 0), b = F.rooms.reduce((s, r) => s + Math.max(0, F.months[i - 1].rooms[r.id].open), 0);
+    if (a - b >= 5) jump = { label: F.months[i].label, n: a };
+  }
+  return { m0, open0, over0, peak, jump, enrolled: DATA.kids.filter(k => k.r).length, licensed: F.rooms.reduce((s, r) => s + r.licensed, 0) };
+}
+const statusPill = c => c.open < 0 ? '<span class="pill over">' + (-c.open) + ' over the limit</span>' : c.open === 0 ? '<span class="pill">Full</span>' : '<span class="pill open">' + c.open + ' open</span>';
+
+function renderDashboard() {
+  const f = facts(), m0 = f.m0, mon = m0.label.split(' ')[0];
+  $('dashLead').textContent = f.enrolled + ' children are enrolled in ' + f.licensed + ' licensed spaces. ' + (f.open0 ? plural(f.open0, 'space is', 'spaces are') + ' open by the end of ' + mon + '.' : 'Every room is full this month.') + (f.jump ? ' The next big change is ' + f.jump.label + ', when ' + f.jump.n + ' spaces are open.' : '');
+  const tiles = [
+    ['', 'Licensed capacity', f.licensed, '8 rooms on the licence'],
+    ['', 'Enrolled today', f.enrolled, 'From the Lillio export'],
+    ['is-open', 'Open by end of ' + mon, f.open0, f.open0 ? F.rooms.filter(r => m0.rooms[r.id].open > 0).map(r => r.name + ': ' + m0.rooms[r.id].open).join(' · ') : 'Every room is full'],
+    [f.over0.length ? 'is-over' : '', 'Rooms over their limit', f.over0.length, f.over0.length ? f.over0.map(r => r.name).join(', ') : 'None'],
+    [f.peak.n ? 'is-wait' : '', 'Most toddlers waiting', f.peak.n, f.peak.n ? 'In ' + f.peak.label : 'No toddler waits']
+  ];
+  $('tiles').innerHTML = tiles.map(t => '<div class="tile ' + t[0] + '"><span class="small muted">' + esc(t[1]) + '</span><b>' + t[2] + '</b><span class="small muted">' + esc(t[3]) + '</span></div>').join('');
+  $('dashRooms').innerHTML = F.rooms.map(r => { const c = m0.rooms[r.id];
+    return '<div class="card"><div class="row" style="justify-content:space-between"><h3>' + esc(r.name) + '</h3>' + statusPill(c) + '</div><div><span class="count">' + c.n + '</span> <span class="muted">of ' + c.cap + ' spaces</span></div><div class="bar' + (c.open < 0 ? ' is-over' : '') + '" aria-hidden="true"><i style="width:' + Math.min(100, Math.round(100 * c.n / Math.max(1, c.cap))) + '%"></i></div></div>'; }).join('');
+  const alerts = [];
+  f.over0.forEach(r => alerts.push(['over', r.name + ' has ' + m0.rooms[r.id].n + ' children against a limit of ' + r.cap + '.', 'Check the roster in Lillio for a child who has left or moved without an end date.']));
+  const firstWait = F.months.find(s => F.rooms.some(r => s.rooms[r.id].waiting));
+  if (firstWait) alerts.push(['wait', 'From ' + firstWait.label + ', toddlers reach 30 months with no preschool space to move into.', 'The backlog peaks at ' + f.peak.n + ' in ' + f.peak.label + '. Preschool rooms stay full until the school year starts.']);
+  if (!alerts.length) alerts.push(['', 'Nothing needs attention.', 'Every room is within its limit and no child is waiting to move up.']);
+  $('dashAlerts').innerHTML = alerts.map(a => '<li class="chk"><span class="dot ' + a[0] + '"></span><span><b>' + esc(a[1]) + '</b><br><span class="muted">' + esc(a[2]) + '</span></span></li>').join('');
+  const soon = [];
+  F.months.slice(0, 4).forEach(s => F.rooms.forEach(r => s.rooms[r.id].events.forEach(e => { if (e.dir === 'in' || /leaves the centre/.test(e.text)) soon.push([s.label, e.dir === 'in' ? (/starts$/.test(e.text) ? e.text + ' in ' + r.name : e.text.replace('moves in from', 'moves from') + ' to ' + r.name) : e.text, e.why.charAt(0).toUpperCase() + e.why.slice(1)]); })));
+  $('dashSoon').innerHTML = soon.length ? soon.map(x => '<li><span class="pill">' + esc(x[0]) + '</span> <b>' + esc(x[1])  + '</b><br><span class="muted">' + esc(x[2]) + '</span></li>').join('') : '<li class="muted">No moves, starts or departures are recorded for the next 3 months.</li>';
+}
+
+function renderForecastHead() {
+  const f = facts();
+  $('fcLead').textContent = 'Open spaces in each room for the next 24 months. ' + (f.jump ? 'Little changes until ' + f.jump.label + ', when ' + f.jump.n + ' spaces open.' : '');
+  const changed = +opts.moveAge !== DEF.moveAge || +opts.leaveAge !== DEF.leaveAge || Object.keys(opts.caps).length;
+  $('scenarioNote').textContent = changed ? 'You are viewing a what-if, not the default forecast. The grid below has been recalculated.' : 'Change a setting and the grid below recalculates straight away.';
+}
+
+function renderGrid() {
+  const ms = F.months;
+  let h = '<thead><tr><th class="rowhead" scope="col">Room</th>' + ms.map(s => '<th scope="col" class="' + (s.m === 9 ? 'sep' : '') + '">' + MONTHS[s.m - 1] + '<span>' + s.y + '</span></th>').join('') + '</tr></thead><tbody>';
+  GROUPS.forEach(g => {
+    h += '<tr class="group"><th class="rowhead" scope="colgroup">' + g[1] + '</th><th colspan="' + ms.length + '"></th></tr>';
+    F.rooms.filter(r => r.runsAs === g[0]).forEach(r => {
+      h += '<tr><th class="rowhead" scope="row"><b>' + esc(r.name) + '</b><span>' + r.cap + ' spaces</span>' + (r.licName !== r.name ? '<span>Licensed as ' + esc(r.licName) + '</span>' : '') + '</th>';
+      ms.forEach(s => {
+        const c = s.rooms[r.id], on = sel && sel.rid === r.id && sel.mi === s.mi;
+        const cls = c.open < 0 ? 'over' : c.open === 0 ? 'full' : 'open';
+        const main = c.open < 0 ? '+' + (-c.open) : c.open === 0 ? 'Full' : c.open;
+        const sub = c.waiting ? '<span class="w">' + c.waiting + ' waiting</span>' : c.open < 0 ? '<span>over</span>' : c.open === 0 ? '' : '<span>open</span>';
+        const a = Math.round(14 + 60 * Math.min(1, c.open / c.cap));
+        const aria = r.name + ', ' + s.label + ': ' + (c.open < 0 ? (-c.open) + ' over the limit' : c.open + ' open of ' + c.cap) + (c.waiting ? ', ' + c.waiting + ' waiting to move up' : '');
+        h += '<td class="' + (s.m === 9 ? 'sep' : '') + '"><button type="button" class="cell ' + cls + '" style="--a:' + a + '" data-r="' + r.id + '" data-m="' + s.mi + '" aria-pressed="' + (on ? 'true' : 'false') + '" aria-label="' + esc(aria) + '"><b>' + main + '</b>' + sub + '</button></td>';
+      });
+      h += '</tr>';
+    });
+  });
+  h += '<tr class="total"><th class="rowhead" scope="row"><b>Children enrolled</b><span>of 167 licensed</span></th>' + ms.map(s => '<td>' + s.total + '</td>').join('') + '</tr></tbody>';
+  $('grid').innerHTML = h;
+}
+
+function openCell(rid, mi, keep) {
+  sel = { rid, mi };
+  const r = F.rooms.find(x => x.id === rid), s = F.months[mi], c = s.rooms[rid];
+  const startN = DATA.kids.filter(k => k.r === rid).length;
+  let ins = 0, outs = 0; for (let i = 0; i <= mi; i++) F.months[i].rooms[rid].events.forEach(e => e.dir === 'in' ? ins++ : outs++);
+  const head = c.open < 0 ? (-c.open) + ' over the limit' : c.open === 0 ? 'Full' : plural(c.open, 'open space', 'open spaces');
+  const evs = c.events.length ? '<ul class="plain">' + c.events.map(e => '<li class="evt ' + e.dir + '"><span class="mk" aria-hidden="true">' + (e.dir === 'in' ? '+' : '−') + '</span><span><b>' + esc(e.text) + '</b><br><span class="muted">' + esc(e.why.charAt(0).toUpperCase() + e.why.slice(1)) + '</span></span></li>').join('') + '</ul>' : '<p class="muted">No child joins or leaves this room in ' + s.label + '.</p>';
+  const checks = [
+    [c.open < 0 ? 'over' : '', c.n + ' children against a limit of ' + c.cap],
+    [c.young > c.youngLimit ? 'over' : '', c.youngLimit ? c.young + ' younger than the ' + r.lic.toLowerCase() + ' age range. The mixed-age limit is ' + c.youngLimit + '.' : c.young + ' younger than the kindergarten age range. Mixed-age is not modelled for this room.'],
+    [c.waiting ? 'wait' : '', c.waiting ? c.flags.filter(f => f.level === 'wait').map(f => f.text).join('; ') : 'No child is past the upper age for this room'],
+    ['', plural(c.staff, 'staff member', 'staff members') + ' needed at one per ' + c.ratio + ' children']
+  ];
+  const age = id => fmtAge(ageM(kidsById[id].b, s.y, s.m));
+  $('drawer').innerHTML =
+    '<div class="dhead"><div><h2>' + esc(r.name) + '</h2><p class="muted">' + s.label + '</p><p class="muted small">Licensed as ' + esc(r.licName) + ' (' + r.lic + ')</p></div><button class="btn" type="button" id="closeD">Close</button></div>' +
+    '<div class="stack-s"><div><div class="big">' + head + '</div><p class="muted">' + c.n + ' of ' + c.cap + ' spaces filled at month end</p></div>' +
+    '<div class="bar' + (c.open < 0 ? ' is-over' : '') + '" aria-hidden="true"><i style="width:' + Math.min(100, Math.round(100 * c.n / Math.max(1, c.cap))) + '%"></i></div></div>' +
+    '<div class="stack-s"><h3>What changes in ' + s.label + '</h3>' + evs + '</div>' +
+    '<div class="stack-s"><h3>How it got here</h3><p>' + startN + ' children today. Since then ' + plural(ins, 'child joins', 'children join') + ' and ' + plural(outs, 'child leaves', 'children leave') + ' this room, which gives ' + c.n + '.</p></div>' +
+    '<div class="stack-s"><h3>Rule checks</h3><ul class="plain">' + checks.map(k => '<li class="chk"><span class="dot ' + k[0] + '"></span><span>' + esc(k[1]) + '</span></li>').join('') + '</ul></div>' +
+    '<details><summary>Children in the room (' + c.n + ')</summary><div class="chips" style="margin-top:var(--s3)">' + c.ids.map(id => '<span class="chip">' + esc(kidsById[id].n) + ' ' + age(id) + '</span>').join('') + '</div></details>';
+  $('drawer').classList.add('on'); $('drawer').setAttribute('aria-hidden', 'false');
+  $('closeD').onclick = closeCell;
+  document.querySelectorAll('.cell[aria-pressed="true"]').forEach(b => b.setAttribute('aria-pressed', 'false'));
+  const b = document.querySelector('.cell[data-r="' + rid + '"][data-m="' + mi + '"]'); if (b) b.setAttribute('aria-pressed', 'true');
+  if (!keep) $('closeD').focus();
+}
+function closeCell() {
+  const b = sel && document.querySelector('.cell[data-r="' + sel.rid + '"][data-m="' + sel.mi + '"]');
+  sel = null; $('drawer').classList.remove('on'); $('drawer').setAttribute('aria-hidden', 'true');
+  document.querySelectorAll('.cell[aria-pressed="true"]').forEach(x => x.setAttribute('aria-pressed', 'false'));
+  if (b && !$('view-forecast').hidden) b.focus();
+}
+
+function renderAssume() {
+  const a = [
+    'No new enrolments are added, so an open space is one you can offer to a family.',
+    'Children leave only on an end date recorded in Lillio, or in September of the year they turn ' + opts.leaveAge + '.',
+    'A toddler moves to preschool in the first month they are ' + opts.moveAge + ' months old and a preschool room has a space. The oldest child goes first.' + (+opts.moveAge < 30 ? ' Moves before 30 months count against each preschool room’s mixed-age limit of 5.' : ''),
+    'Each September, preschoolers turning 4 that year move into a kindergarten class if there is space, and senior kindergarten children in Kindergarten 2 move to Kindergarten 1.',
+    'Numbers are month-end snapshots for children attending five days a week. Part-time schedules and staffing levels are not included yet.',
+    'Whether a child may stay in a toddler room after 30 months is for your ministry program advisor to confirm. The forecast marks those children as waiting.'
+  ];
+  $('assume').innerHTML = a.map(x => '<li>' + esc(x) + '</li>').join('');
+  $('rulever').textContent = RULES.version;
+}
+
+function filterButtons(which) {
+  document.querySelector('[data-filter="' + which + '"]').innerHTML = [['all', 'All rooms']].concat(F.rooms.map(r => [r.id, r.name])).map(x => '<button type="button" class="btn" data-f="' + x[0] + '" data-w="' + which + '" aria-pressed="' + (filters[which] === x[0]) + '">' + esc(x[1]) + '</button>').join('');
+}
+function renderChildren() {
+  const s0 = F.months[0]; filterButtons('children');
+  const rows = DATA.kids.filter(k => k.r && (filters.children === 'all' || k.r === filters.children)).map(k => {
+    const r = F.rooms.find(x => x.id === k.r), j = (F.journey[k.id] || [])[0];
+    const mark = r.runsAs === 'Toddler' ? '30 months in ' + monthLabel(k.b, 30) : r.runsAs === 'Preschool' ? 'Turns 4 in ' + (+k.b.slice(0, 4) + 4) : 'Turns ' + opts.leaveAge + ' in ' + (+k.b.slice(0, 4) + +opts.leaveAge);
+    let pill = '<span class="pill">No change in 24 months</span>', sort = 999;
+    if (j) { sort = j.mi; pill = '<span class="pill open">' + esc(F.months[j.mi].label) + '</span> ' + esc(j.text.replace(/ \(.*\)$/, '')); }
+    let wait = '';
+    if (r.runsAs === 'Toddler') {
+      const b = k.b.split('-'), t30 = (+b[0] * 12 + +b[1] - 1) + 30, base = 2026 * 12 + 10, from = Math.max(0, t30 - base), until = j ? j.mi : 25;
+      if (until > from) wait = ' <span class="pill wait">waits ' + plural(until - from, 'month', 'months') + (j ? '' : ' or more') + '</span>';
+    }
+    return { sort, html: '<tr><td><b>' + esc(k.n) + '</b></td><td>' + fmtAge(ageM(k.b, s0.y, s0.m)) + '</td><td>' + esc(r.name) + '</td><td>' + esc(mark) + '</td><td>' + pill + wait + '</td></tr>' };
+  }).sort((a, b) => a.sort - b.sort);
+  $('kidTable').innerHTML = '<thead><tr><th>Child</th><th>Age now</th><th>Room now</th><th>Next milestone</th><th>Forecast</th></tr></thead><tbody>' + rows.map(r => r.html).join('') + '</tbody>';
+}
+function renderRosters() {
+  const s0 = F.months[0]; filterButtons('rosters');
+  const rows = DATA.kids.filter(k => k.r && (filters.rosters === 'all' || k.r === filters.rosters))
+    .sort((a, b) => ROOMS.findIndex(r => r.id === a.r) - ROOMS.findIndex(r => r.id === b.r) || (a.b < b.b ? -1 : 1))
+    .map(k => '<tr><td><b>' + esc(k.n) + '</b></td><td>' + esc(F.rooms.find(x => x.id === k.r).name) + '</td><td>' + monthLabel(k.b, 0) + '</td><td>' + fmtAge(ageM(k.b, s0.y, s0.m)) + '</td><td>' + monthLabel(k.s, 0) + '</td></tr>');
+  $('rosterTable').innerHTML = '<thead><tr><th>Child</th><th>Room</th><th>Born</th><th>Age now</th><th>In this room since</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
+}
+function renderRooms() {
+  const s0 = F.months[0];
+  $('roomCards').innerHTML = F.rooms.map(r => {
+    const rule = RULES[r.lic], yl = Math.round(rule.youngShare * r.cap + 1e-9);
+    return '<div class="card"><div><h3>' + esc(r.name) + '</h3><p class="small muted">On the licence: ' + esc(r.licName) + ' (' + r.lic + ')</p></div>' +
+      '<dl class="facts"><dt>Licensed capacity</dt><dd>' + r.licensed + '</dd><dt>Enrolled</dt><dd>' + s0.rooms[r.id].n + '</dd><dt>Age range</dt><dd>' + AGE_TEXT[r.lic] + '</dd><dt>Staff to children</dt><dd>1 to ' + rule.ratio + '</dd><dt>Younger children</dt><dd>' + (yl ? 'up to ' + yl : 'not modelled') + '</dd></dl>' +
+      '<label class="field" for="cap-' + r.id + '">Operating capacity<input type="number" id="cap-' + r.id + '" data-cap="' + r.id + '" min="0" max="' + r.licensed + '" value="' + r.cap + '"></label></div>';
+  }).join('');
+}
+function reportRows() {
+  const head = ['Room'].concat(F.months.map(s => s.label));
+  return [head].concat(F.rooms.map(r => [r.name].concat(F.months.map(s => s.rooms[r.id].open)))).concat([['Children enrolled'].concat(F.months.map(s => s.total))]);
+}
+function renderReport() {
+  const rows = reportRows();
+  $('reportTable').innerHTML = '<thead><tr>' + rows[0].map(c => '<th>' + esc(c) + '</th>').join('') + '</tr></thead><tbody>' + rows.slice(1).map(r => '<tr>' + r.map((c, i) => i ? '<td>' + c + '</td>' : '<td><b>' + esc(c) + '</b></td>').join('') + '</tr>').join('') + '</tbody>';
+}
+
+function route() {
+  let id = location.hash.slice(1); if (!FLAT.some(m => m.id === id)) id = 'dashboard';
+  const m = FLAT.find(x => x.id === id), view = m.soon ? 'soon' : id;
+  document.querySelectorAll('.view').forEach(v => { v.hidden = v.id !== 'view-' + view; });
+  if (m.soon) { $('soonTitle').textContent = m.label; $('soonText').textContent = m.soon; }
+  if ((MENU.find(x => x.items).items).some(x => x.id === id)) groupOpen = true;
+  renderMenu(id); $('mobileTitle').textContent = m.label;
+  $('rail').classList.remove('on'); $('menuBtn').setAttribute('aria-expanded', 'false');
+  if (view !== 'forecast' && sel) closeCell();
+  window.scrollTo(0, 0);
+}
+
+document.addEventListener('click', e => {
+  const c = e.target.closest('.cell'); if (c) return openCell(c.dataset.r, +c.dataset.m);
+  const f = e.target.closest('[data-f]'); if (f) { filters[f.dataset.w] = f.dataset.f; f.dataset.w === 'children' ? renderChildren() : renderRosters(); return; }
+  if (e.target.closest('#grpBtn')) { groupOpen = !groupOpen; $('grpBtn').setAttribute('aria-expanded', groupOpen); $('grpList').hidden = !groupOpen; return; }
+  if (e.target.closest('#menuBtn')) { const on = $('rail').classList.toggle('on'); $('menuBtn').setAttribute('aria-expanded', on); return; }
+  if (e.target.closest('#copyBtn')) {
+    const text = reportRows().map(r => r.join('\t')).join('\n');
+    const done = ok => { $('copyMsg').textContent = ok ? 'Copied. Paste it into your spreadsheet.' : 'Copying is blocked here. Select the table below and copy it instead.'; };
+    try { navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); } catch (err) { done(false); }
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (sel) closeCell(); $('rail').classList.remove('on'); } });
+document.addEventListener('change', e => {
+  if (e.target.id === 'moveAge' || e.target.id === 'leaveAge') { opts[e.target.id] = +e.target.value; save(); run(); }
+  if (e.target.dataset.cap) {
+    const r = ROOMS.find(x => x.id === e.target.dataset.cap), v = Math.max(0, Math.min(r.licensed, Math.round(+e.target.value || 0)));
+    if (v === r.licensed) delete opts.caps[r.id]; else opts.caps[r.id] = v; save(); run();
+  }
+});
+$('reset').onclick = () => { opts = JSON.parse(JSON.stringify(DEF)); save(); syncControls(); run(); };
+function syncControls() { $('moveAge').value = opts.moveAge; $('leaveAge').value = opts.leaveAge; }
+window.addEventListener('hashchange', route);
+syncControls(); run(); route();
+</script>
+</body>
+</html>
