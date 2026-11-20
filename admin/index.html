@@ -78,7 +78,7 @@ main { margin-left: var(--navW); padding: calc(var(--topH) + var(--s5)) var(--s5
   .rail.on { transform: none; box-shadow: 4px 0 16px rgba(0,0,0,.15); }
   main { margin-left: 0; padding: calc(var(--topH) + var(--s4)) var(--s3) var(--s6); }
 }
-@media (max-width: 520px) { .centre span.name { display: none; } }
+@media (max-width: 520px) { .centre span.name, .savenote { display: none; } }
 
 /* Controls */
 .btn { height: var(--ctl); padding: 0 var(--s3); border-radius: var(--rs); border: 1px solid #D4D4D4; background: var(--surface); color: var(--ink);
@@ -257,6 +257,27 @@ label.check { display: flex; align-items: center; gap: var(--s2); font-size: 13p
 
 .list.compact { min-width: 0; }
 dl.facts.left dd { text-align: left; font-weight: 500; }
+
+/* Home charts */
+.donut { display: grid; grid-template-columns: 180px 1fr; gap: var(--s5); align-items: center; }
+.donut svg { width: 180px; height: 180px; display: block; }
+.donut .c1 { font: 650 28px/1 var(--body); fill: var(--ink); }
+.donut .c2 { font: 400 12px/1 var(--body); fill: var(--muted); }
+.legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s2); }
+.legend li { display: grid; grid-template-columns: 12px 1fr auto; gap: var(--s2); align-items: center; font-size: 13px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: block; }
+.legend b { font-weight: 600; }
+.bars { display: flex; flex-direction: column; gap: var(--s2); }
+.bar-row { display: grid; grid-template-columns: 110px 1fr 56px; gap: var(--s3); align-items: center; font-size: 13px; }
+.bar-row .trk { height: 10px; background: #EBEBEB; border-radius: 5px; overflow: hidden; }
+.bar-row .fil { height: 100%; background: #2A78D6; border-radius: 5px; }
+.bar-row.over .fil { background: #C70A24; }
+.bar-row .v { text-align: right; color: var(--muted); }
+.bar-row.over .v { color: var(--over); font-weight: 600; }
+.todo li { display: grid; grid-template-columns: 10px 1fr auto; gap: var(--s2); align-items: baseline; }
+.tip { position: fixed; pointer-events: none; background: #1A1A1A; color: #FFF; font-size: 12px; padding: 4px 8px; border-radius: var(--rs); z-index: 80; white-space: nowrap; }
+.tip[hidden] { display: none; }
+@media (max-width: 560px) { .donut { grid-template-columns: 1fr; justify-items: center; } .bar-row { grid-template-columns: 90px 1fr 48px; } }
 </style>
 </head>
 <body>
@@ -380,7 +401,19 @@ dl.facts.left dd { text-align: left; font-weight: 500; }
 
       <section class="view stack" id="view-dashboard">
         <div class="phead">
-          <div class="stack-s"><h1>Dashboard</h1><p class="lead" id="homeLead"></p></div>
+          <div class="stack-s"><h1>Dashboard</h1><p class="lead" id="dLead"></p></div>
+          <label class="field inline" for="dDate">Date <input type="date" id="dDate" data-day></label>
+        </div>
+        <div class="two">
+          <div class="panel stack-s"><div class="row sb"><h2>Attendance</h2><a href="#actions">Take attendance</a></div><div id="dAtt"></div></div>
+          <div class="panel stack-s"><div class="row sb"><h2>Enrollment</h2><a href="#overview">Overview</a></div><div id="dEnr"></div></div>
+        </div>
+        <div class="panel stack-s"><div class="row sb"><h2>To do</h2><a href="#summary" id="dAll">Daily summary</a></div><ul class="plain todo" id="dTodo"></ul></div>
+      </section>
+
+      <section class="view stack" id="view-summary" hidden>
+        <div class="phead">
+          <div class="stack-s"><h1>Daily summary</h1><p class="lead" id="homeLead"></p></div>
           <label class="field inline" for="homeDate">Date <input type="date" id="homeDate" data-day></label>
         </div>
         <div class="tiles" id="homeTiles"></div>
@@ -524,6 +557,7 @@ dl.facts.left dd { text-align: left; font-weight: 500; }
 </main>
 <div class="modal" id="modal" hidden><div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mTitle"><form id="mForm" novalidate></form><div class="mview" id="mView" hidden></div></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
+<div class="tip" id="tip" hidden></div>
 
 <aside class="drawer" id="drawer" aria-label="Details for the selected box" aria-hidden="true"></aside>
 
@@ -665,6 +699,7 @@ function save() { try { localStorage.setItem('nf-opts', JSON.stringify(opts)); }
 /* Menu: built sections link to a view; planned ones open the "not built yet" page */
 const MENU = [
   { id: 'dashboard', label: 'Dashboard', badge: true },
+  { id: 'summary', label: 'Daily summary' },
   { group: 'Manage enrollment', items: [
     { id: 'overview', label: 'Enrollment overview' },
     { id: 'forecast', label: 'Capacity forecast' },
@@ -1454,7 +1489,33 @@ function backup() {
 }
 
 /* ===== Wiring ===== */
-const RENDER = { dashboard: renderHome, waitlist: renderWaitlist, actions: renderActions, signin: renderSignin, contacts: renderContacts, messaging: renderMessages, photos: renderPhotos, billing: renderBilling, calendars: renderCalendars, configuration: renderConfig };
+
+/* ===== Dashboard (home): two charts and a short to-do list ===== */
+const ATT_COLORS = { in: '#2A78D6', out: '#1BAF7A', absent: '#EB6834', expected: '#D4D4D4' };
+function donutSvg(parts, total, big, small) {
+  const r = 70, C = 2 * Math.PI * r, live = parts.filter(p => p.v > 0), gap = live.length > 1 ? 2 : 0;
+  let off = 0, segs = '';
+  live.forEach(p => { const len = Math.max(0, p.v / total * C - gap);
+    segs += '<circle cx="90" cy="90" r="' + r + '" fill="none" stroke="' + p.color + '" stroke-width="22" stroke-dasharray="' + len + ' ' + (C - len) + '" stroke-dashoffset="' + (-off) + '" data-tip="' + esc(p.label + ': ' + p.v) + '" style="cursor:default"></circle>'; off += p.v / total * C; });
+  if (!live.length) segs = '<circle cx="90" cy="90" r="' + r + '" fill="none" stroke="#EBEBEB" stroke-width="22"></circle>';
+  return '<svg viewBox="0 0 180 180" role="img" aria-label="' + esc(big + ' ' + small) + '"><g transform="rotate(-90 90 90)">' + segs + '</g><text x="90" y="88" text-anchor="middle" class="c1">' + esc(big) + '</text><text x="90" y="108" text-anchor="middle" class="c2">' + esc(small) + '</text></svg>';
+}
+function renderDash() {
+  const kids = ENROLLED(), c = dayCounts(kids), closed = closureOn(DAY), open = isOpenDay(DAY);
+  $('dLead').textContent = fmtDate(DAY, true) + (DAY === todayISO() ? ' (today)' : '') + (closed ? '. Closed: ' + closed.title + '.' : isWeekend(DAY) ? '. Closed on weekends.' : '');
+  const parts = [{ k: 'in', label: 'Signed in', v: c.in }, { k: 'out', label: 'Signed out', v: c.out }, { k: 'absent', label: 'Absent', v: c.absent }, { k: 'expected', label: open ? 'Not arrived' : 'No sign-in (closed)', v: c.expected }].map(p => Object.assign(p, { color: ATT_COLORS[p.k] }));
+  $('dAtt').innerHTML = '<div class="donut">' + donutSvg(parts, kids.length, String(c.in), 'of ' + kids.length + ' signed in') +
+    '<ul class="legend">' + parts.map(p => '<li><i style="background:' + p.color + '"></i><span>' + p.label + '</span><b>' + p.v + '</b></li>').join('') + '</ul></div>';
+  const m0 = F.months[0], rooms = F.rooms.map(r => ({ r, n: m0.rooms[r.id].n }));
+  const filled = rooms.reduce((s, x) => s + x.n, 0), cap = F.rooms.reduce((s, r) => s + r.licensed, 0);
+  $('dEnr').innerHTML = '<p class="muted small" style="margin-bottom:4px">' + filled + ' of ' + cap + ' licensed spaces filled at the end of ' + m0.label + '</p><div class="bars">' + rooms.map(x => { const over = x.n > x.r.cap;
+    return '<div class="bar-row' + (over ? ' over' : '') + '" data-tip="' + esc(x.r.name + ': ' + x.n + ' children, ' + x.r.cap + ' spaces' + (over ? ' (over by ' + (x.n - x.r.cap) + ')' : x.n < x.r.cap ? ' (' + (x.r.cap - x.n) + ' open)' : ' (full)')) + '"><span>' + esc(x.r.name) + '</span><div class="trk"><div class="fil" style="width:' + Math.min(100, x.n / x.r.cap * 100) + '%"></div></div><span class="v">' + x.n + ' / ' + x.r.cap + '</span></div>'; }).join('') + '</div>';
+  const al = alertsList(), rank = { over: 0, wait: 1, info: 2 }, top = al.slice().sort((a, b) => rank[a.lv] - rank[b.lv]).slice(0, 4);
+  $('dTodo').innerHTML = top.length ? top.map(a => '<li><span class="dot ' + a.lv + '"></span><span>' + esc(a.t) + '</span><a href="' + a.href + '">View</a></li>').join('') : '<li class="muted">Nothing needs attention.</li>';
+  $('dAll').textContent = al.length > top.length ? 'See all ' + al.length + ' in Daily summary' : 'Daily summary';
+}
+document.addEventListener('mousemove', e => { const t = e.target.closest && e.target.closest('[data-tip]'), tip = $('tip'); if (!t) { tip.hidden = true; return; } tip.textContent = t.dataset.tip; tip.hidden = false; tip.style.left = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; });
+const RENDER = { dashboard: renderDash, summary: renderHome, waitlist: renderWaitlist, actions: renderActions, signin: renderSignin, contacts: renderContacts, messaging: renderMessages, photos: renderPhotos, billing: renderBilling, calendars: renderCalendars, configuration: renderConfig };
 function refresh() {
   if (rafPending) return; rafPending = true;
   requestAnimationFrame(() => { rafPending = false; if (!F) return; document.querySelectorAll('[data-day]').forEach(i => { i.value = DAY; }); if (RENDER[CUR]) RENDER[CUR](); updateBadge(); });
