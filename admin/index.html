@@ -271,13 +271,96 @@ dl.facts.left dd { text-align: left; font-weight: 500; }
 .bar-row { display: grid; grid-template-columns: 110px 1fr 56px; gap: var(--s3); align-items: center; font-size: 13px; }
 .bar-row .trk { height: 10px; background: #EBEBEB; border-radius: 5px; overflow: hidden; }
 .bar-row .fil { height: 100%; background: #2A78D6; border-radius: 5px; }
-.bar-row.over .fil { background: #C70A24; }
+.bar-row.over .fil { background: #C70A24 !important; }
 .bar-row .v { text-align: right; color: var(--muted); }
 .bar-row.over .v { color: var(--over); font-weight: 600; }
 .todo li { display: grid; grid-template-columns: 10px 1fr auto; gap: var(--s2); align-items: baseline; }
 .tip { position: fixed; pointer-events: none; background: #1A1A1A; color: #FFF; font-size: 12px; padding: 4px 8px; border-radius: var(--rs); z-index: 80; white-space: nowrap; }
 .tip[hidden] { display: none; }
 @media (max-width: 560px) { .donut { grid-template-columns: 1fr; justify-items: center; } .bar-row { grid-template-columns: 90px 1fr 48px; } }
+
+/* ===== Colour and spacing pass ===== */
+:root { --brand: #0E7C66; --brand-soft: #E3F4EF; --s4: 16px; --s5: 24px; }
+body { line-height: 1.55; letter-spacing: 0; word-spacing: normal; }
+h1 { font-size: 22px; letter-spacing: -0.01em; }
+h2 { font-size: 15px; }
+.lead { margin-top: 2px; }
+.stack { gap: 24px; }
+.stack-s { gap: 12px; }
+main { padding-top: calc(var(--topH) + 28px); }
+.panel { padding: 20px; }
+.two, .three { gap: 16px; }
+.tiles { gap: 16px; }
+.list th, .list td { padding: 10px 14px; line-height: 1.5; }
+.feed li { gap: 4px; padding-bottom: 12px; }
+.alerts li { padding-bottom: 14px; gap: 10px; }
+.legend { gap: 10px; }
+.bars { gap: 12px; }
+.todo li { padding: 6px 0; gap: 10px; }
+.btn { gap: 6px; }
+.row { gap: 10px; }
+/* Brand colour */
+.brand .logo { background: var(--brand); color: #FFF; }
+.btn-primary, .btn[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); }
+.btn-primary:hover, .btn[aria-pressed="true"]:hover { background: #0A6553; }
+.menu a[aria-current="page"] { background: #FFFFFF; box-shadow: inset 3px 0 0 var(--brand), 0 1px 0 rgba(0,0,0,.06); }
+.menu a, .menu button { min-height: 34px; }
+.nl { display: inline-flex; align-items: center; gap: 10px; }
+.nico { width: 18px; height: 18px; flex: none; }
+.menu .sub { padding-left: 28px; }
+/* Coloured stat tiles */
+.tile { border-top: 3px solid var(--tc, #D4D4D4); padding: 14px 16px 16px; gap: 4px; }
+.tile:nth-child(1) { --tc: #2A78D6; } .tile:nth-child(2) { --tc: #1BAF7A; } .tile:nth-child(3) { --tc: #EB6834; }
+.tile:nth-child(4) { --tc: #6250D6; } .tile:nth-child(5) { --tc: #E87BA4; } .tile:nth-child(6) { --tc: #EDA100; }
+.counters div { border-top: 3px solid #D4D4D4; padding: 10px 14px; }
+.counters div:nth-child(1) { border-top-color: #EDA100; } .counters div:nth-child(2) { border-top-color: #2A78D6; } .counters div:nth-child(3) { border-top-color: #1BAF7A; } .counters div:nth-child(4) { border-top-color: #008300; } .counters div:nth-child(5) { border-top-color: #A3A3A3; }
+.panel > .row.sb h2::before, .panel > .stack-s > .row.sb h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: var(--brand); margin-right: 8px; vertical-align: 1px; }
+/* Charts */
+.bar-row { grid-template-columns: 120px 1fr 64px; }
+.bar-row .fil { background: var(--bc, #2A78D6); }
+.bar-row.over .v::after { content: " over"; font-weight: 600; }
+.stk { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: #EBEBEB; gap: 2px; }
+.stk span { display: block; height: 100%; }
+.keyrow { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); }
+.keyrow i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 6px; vertical-align: -1px; }
+.donut.sm { grid-template-columns: 140px 1fr; gap: 16px; }
+.donut.sm svg { width: 140px; height: 140px; }
+/* Search */
+.search { position: relative; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px; background: #303030; border: 1px solid #4A4A4A; border-radius: 8px; color: #B5B5B5; }
+.search:focus-within { background: #FFFFFF; border-color: #FFFFFF; color: var(--muted); }
+.search svg { width: 16px; height: 16px; flex: none; }
+.search input { flex: 1; min-width: 0; height: 32px; border: 0; background: transparent; color: inherit; font: 400 13px/1 var(--body); outline: none; padding: 0; }
+.search:focus-within input { color: var(--ink); }
+.search input::placeholder { color: #9A9A9A; }
+.search kbd { font: 500 11px/1 var(--body); border: 1px solid #5A5A5A; border-radius: 4px; padding: 2px 6px; color: #9A9A9A; }
+.search:focus-within kbd { display: none; }
+.qres { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #FFFFFF; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 12px 32px rgba(0,0,0,.18); max-height: 420px; overflow-y: auto; padding: 6px; z-index: 50; }
+.qres[hidden] { display: none; }
+.qi { display: grid; grid-template-columns: 84px 1fr; gap: 10px; align-items: center; width: 100%; text-align: left; border: 0; background: transparent; padding: 8px 10px; border-radius: 6px; cursor: pointer; font: inherit; color: inherit; }
+.qi:hover, .qi.on { background: #F1F1F1; }
+.qi .qt { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px; text-align: center; color: #FFF; background: var(--qc, #616161); }
+.qi b { font-weight: 600; font-size: 13px; }
+.qi .muted { font-size: 12px; display: block; }
+.qempty { padding: 12px; color: var(--muted); font-size: 13px; }
+.sbtn { display: none; }
+@media (max-width: 860px) {
+  .sbtn { display: inline-grid; place-items: center; font-size: 22px; }
+  .search { display: none; position: fixed; top: calc(var(--topH) + 8px); left: 12px; right: 12px; width: auto; z-index: 45; background: #FFFFFF; border-color: var(--line); box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+  .search.on { display: flex; }
+  .search input { color: var(--ink); }
+}
+
+.charts3 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 16px; align-items: stretch; }
+@media (max-width: 1100px) { .charts3 { grid-template-columns: 1fr 1fr; } .charts3 > :first-child { grid-column: 1 / -1; } }
+@media (max-width: 700px) { .charts3 { grid-template-columns: 1fr; } }
+.charts3 .donut.sm { grid-template-columns: 1fr; justify-items: center; gap: 14px; }
+.charts3 .legend { width: 100%; }
+.charts3 .bar-row { grid-template-columns: 110px 1fr 44px; }
+@media (max-width: 860px) {
+  .search { left: 12px; right: auto; width: calc(100vw - 24px); justify-self: auto; }
+  .qi { grid-template-columns: 64px 1fr; }
+}
+.bars + .keyrow { margin-top: 14px; }
 </style>
 </head>
 <body>
@@ -286,8 +369,13 @@ dl.facts.left dd { text-align: left; font-weight: 500; }
     <button class="iconbtn" type="button" id="menuBtn" aria-controls="rail" aria-expanded="false" aria-label="Open menu">☰</button>
     <div class="brand"><span class="logo">N</span>Newstead Academy <span class="admin">Admin</span></div>
   </div>
-  <div class="search" aria-hidden="true">Search</div>
-  <div class="centre"><span class="savenote" id="saveNote">Connecting…</span><span class="name">Newstead Academy Childcare, Richmond Hill</span><span class="av" aria-hidden="true">NA</span></div>
+  <div class="search" id="searchBox" role="search">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8.5 3a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11zM17 17l-4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <input id="q" type="search" placeholder="Search children, families, staff and pages" autocomplete="off" aria-label="Search" aria-controls="qres" aria-expanded="false">
+    <kbd>/</kbd>
+    <div class="qres" id="qres" role="listbox" hidden></div>
+  </div>
+  <div class="centre"><button class="iconbtn sbtn" type="button" id="searchBtn" aria-label="Search">⌕</button><span class="savenote" id="saveNote">Connecting…</span><span class="name">Newstead Academy Childcare, Richmond Hill</span><span class="av" aria-hidden="true">NA</span></div>
 </header>
 <nav class="rail" id="rail" aria-label="Main menu"><ul class="menu" id="menu"></ul></nav>
 <div class="scrim" id="scrim"></div>
@@ -417,6 +505,11 @@ dl.facts.left dd { text-align: left; font-weight: 500; }
           <label class="field inline" for="homeDate">Date <input type="date" id="homeDate" data-day></label>
         </div>
         <div class="tiles" id="homeTiles"></div>
+        <div class="charts3">
+          <div class="panel stack-s"><div class="row sb"><h2>Attendance by room</h2><a href="#actions">Open</a></div><div id="sumAtt"></div></div>
+          <div class="panel stack-s"><div class="row sb"><h2>Waiting list</h2><a href="#waitlist">Open</a></div><div id="sumWl"></div></div>
+          <div class="panel stack-s"><div class="row sb"><h2>Billing this month</h2><a href="#billing">Open</a></div><div id="sumBill"></div></div>
+        </div>
         <div class="two">
           <div class="panel stack-s">
             <div class="row sb"><h2>Needs attention</h2><span class="pill" id="homeAlertCount"></span></div>
@@ -722,10 +815,27 @@ const MENU = [
 ];
 const FLAT = MENU.filter(m => !m.div).flatMap(m => m.items || [m]);
 const BUILT = FLAT.filter(m => !m.soon).map(m => m.id);
+const ICON = {
+  dashboard: ['#2A78D6', 'M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z'],
+  summary: ['#6250D6', 'M4 5h12M4 10h12M4 15h8'],
+  enroll: ['#E87BA4', 'M7 5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM2.5 16.5c0-2.6 2-4.5 4.5-4.5s4.5 1.9 4.5 4.5M13.5 5.5a2.2 2.2 0 1 1 0 4.4M14.5 12c1.8.3 3 2 3 4.5'],
+  rooms: ['#C98500', 'M3 9l7-6 7 6v8H3zM8 17v-5h4v5'],
+  actions: ['#1BAF7A', 'M4 4h12v12H4zM7 10l2 2 4-4'],
+  photos: ['#E87BA4', 'M3 7h3l2-2h4l2 2h3v9H3zM10 9a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z'],
+  messaging: ['#2A78D6', 'M3 4h14v9H8l-4 3v-3H3z'],
+  contacts: ['#EB6834', 'M5 3h10v14H5zM8 7h4M8 10h4M8 13h2'],
+  billing: ['#008300', 'M10 3v14M13.5 6.5c0-1.4-1.6-2-3.5-2s-3.5.8-3.5 2.3 1.7 2 3.5 2.4 3.5 1 3.5 2.5-1.6 2.3-3.5 2.3-3.5-.6-3.5-2'],
+  calendars: ['#E34948', 'M3 5h14v12H3zM3 9h14M7 3v4M13 3v4'],
+  reports: ['#6250D6', 'M4 16V9M10 16V4M16 16v-6M2 17h16'],
+  signin: ['#1BAF7A', 'M9 4h7v12H9M3 10h9M9 7l3 3-3 3'],
+  configuration: ['#616161', 'M10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM10 2v3M10 15v3M2 10h3M15 10h3M4.3 4.3l2.1 2.1M13.6 13.6l2.1 2.1M4.3 15.7l2.1-2.1M13.6 6.4l2.1-2.1'],
+  help: ['#2A78D6', 'M10 2.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15zM7.8 7.8a2.3 2.3 0 1 1 3.2 2.1c-.6.3-1 .8-1 1.4v.6M10 14.2v.1']
+};
+const icon = k => ICON[k] ? '<svg class="nico" viewBox="0 0 20 20" aria-hidden="true"><path d="' + ICON[k][1] + '" fill="none" stroke="' + ICON[k][0] + '" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '';
 function renderMenu(cur) {
-  const link = m => '<li><a href="#' + m.id + '"' + (m.id === cur ? ' aria-current="page"' : '') + '><span>' + esc(m.label) + '</span>' + (m.badge ? '<span class="navbadge" id="navBadge" hidden></span>' : '') + '</a></li>';
+  const link = m => '<li><a href="#' + m.id + '"' + (m.id === cur ? ' aria-current="page"' : '') + '><span class="nl">' + icon(m.id) + '<span>' + esc(m.label) + '</span></span>' + (m.badge ? '<span class="navbadge" id="navBadge" hidden></span>' : '') + '</a></li>';
   $('menu').innerHTML = MENU.map(m => m.div ? '<li class="div" role="separator"></li>' : m.items
-    ? '<li><button type="button" id="grpBtn" aria-expanded="' + groupOpen + '" aria-controls="grpList"><span>' + esc(m.group) + '</span><span class="caret" aria-hidden="true">›</span></button><ul class="sub" id="grpList"' + (groupOpen ? '' : ' hidden') + '>' + m.items.map(link).join('') + '</ul></li>'
+    ? '<li><button type="button" id="grpBtn" aria-expanded="' + groupOpen + '" aria-controls="grpList"><span class="nl">' + icon('enroll') + '<span>' + esc(m.group) + '</span></span><span class="caret" aria-hidden="true">›</span></button><ul class="sub" id="grpList"' + (groupOpen ? '' : ' hidden') + '>' + m.items.map(link).join('') + '</ul></li>'
     : link(m)).join('');
 }
 
@@ -1182,6 +1292,7 @@ function alertsList() {
 
 /* ===== Dashboard ===== */
 function renderHome() {
+  renderSumCharts();
   const kids = ENROLLED(), c = dayCounts(kids), m0 = F.months[0], open0 = F.rooms.reduce((s, r) => s + Math.max(0, m0.rooms[r.id].open), 0);
   const waiting = rows(D.waitlist).filter(w => w.status === 'Waiting').length, closed = closureOn(DAY);
   $('homeLead').textContent = fmtDate(DAY, true) + (DAY === todayISO() ? ' (today)' : '') + '. ' + (closed ? 'The centre is closed: ' + closed.title + '.' : isWeekend(DAY) ? 'The centre is closed on weekends.' : c.in + ' of ' + kids.length + ' children are signed in.');
@@ -1490,6 +1601,80 @@ function backup() {
 
 /* ===== Wiring ===== */
 
+
+/* ===== Colours for age groups ===== */
+const GROUP_COLOR = { Toddler: '#6250D6', Preschool: '#E87BA4', Kindergarten: '#EDA100' };
+const groupKey = '<div class="keyrow">' + Object.keys(GROUP_COLOR).map(g => '<span><i style="background:' + GROUP_COLOR[g] + '"></i>' + g + '</span>').join('') + '<span><i style="background:#C70A24"></i>Over the limit</span></div>';
+
+/* ===== Daily summary charts ===== */
+function renderSumCharts() {
+  const kids = ENROLLED();
+  const order = ['in', 'out', 'absent', 'expected'], lab = { in: 'Signed in', out: 'Signed out', absent: 'Absent', expected: 'Not arrived' };
+  $('sumAtt').innerHTML = '<div class="bars">' + F.rooms.map(r => { const ks = kids.filter(k => k.r === r.id), c = dayCounts(ks), n = ks.length || 1;
+    return '<div class="bar-row" data-tip="' + esc(r.name + ': ' + order.map(o => lab[o] + ' ' + c[o]).join(', ')) + '"><span>' + esc(r.name) + '</span><div class="stk">' + order.filter(o => c[o]).map(o => '<span style="width:' + (c[o] / n * 100) + '%;background:' + ATT_COLORS[o] + '"></span>').join('') + '</div><span class="v">' + c.in + ' in</span></div>'; }).join('') + '</div>' +
+    '<div class="keyrow">' + order.map(o => '<span><i style="background:' + ATT_COLORS[o] + '"></i>' + lab[o] + '</span>').join('') + '</div>';
+  const WLC = { Waiting: '#EDA100', Offered: '#2A78D6', Accepted: '#1BAF7A', Enrolled: '#008300', Declined: '#A3A3A3' };
+  const wl = rows(D.waitlist), wparts = WL_STATUS.map(st => ({ label: st, v: wl.filter(w => w.status === st).length, color: WLC[st] }));
+  $('sumWl').innerHTML = '<div class="donut sm">' + donutSvg(wparts, wl.length || 1, String(wparts[0].v), 'waiting').replace('viewBox="0 0 180 180"', 'viewBox="0 0 180 180" width="140" height="140"') +
+    '<ul class="legend">' + wparts.map(x => '<li><i style="background:' + x.color + '"></i><span>' + x.label + '</span><b>' + x.v + '</b></li>').join('') + '</ul></div>';
+  const mon = todayISO().slice(0, 7), bill = D.billing[mon], L = bill && bill.lines ? rows(bill.lines) : [];
+  const owe = l => Math.max(0, (+l.fee || 0) - (+l.subsidy || 0));
+  const coll = L.filter(l => l.paid).reduce((a, l) => a + owe(l), 0), out = L.filter(l => !l.paid).reduce((a, l) => a + owe(l), 0), sub = L.reduce((a, l) => a + (+l.subsidy || 0), 0);
+  const bparts = [{ label: 'Collected', v: coll, color: '#1BAF7A' }, { label: 'Outstanding', v: out, color: '#EB6834' }, { label: 'Subsidies', v: sub, color: '#6250D6' }];
+  const tot = coll + out + sub;
+  $('sumBill').innerHTML = L.length ? '<div class="donut sm">' + donutSvg(bparts.map(b => Object.assign({}, b, { label: b.label + ' ' + money(b.v) })), tot || 1, tot ? Math.round(coll / (coll + out || 1) * 100) + '%' : '0%', 'collected') +
+    '<ul class="legend">' + bparts.map(x => '<li><i style="background:' + x.color + '"></i><span>' + x.label + '</span><b>' + money(x.v) + '</b></li>').join('') + '</ul></div>'
+    : '<p class="muted">No invoices for ' + fmtDate(mon) + ' yet.</p>';
+}
+
+/* ===== Search ===== */
+const QCOL = { Page: '#616161', Child: '#2A78D6', Waitlist: '#C98500', Contact: '#EB6834', Staff: '#1BAF7A', Event: '#E34948', Message: '#6250D6' };
+const norm = t => String(t || '').toLowerCase().replace(/[^a-z0-9 ]/g, '');
+const tight = t => norm(t).replace(/ /g, '');
+const KEYWORDS = { dashboard: 'home', summary: 'today notifications alerts', actions: 'attendance log check in out nap meal incident', signin: 'kiosk parents drop off pick up', billing: 'invoices fees payments subsidy money', calendars: 'menu food lunch snack holidays closures events', configuration: 'settings staff centre details backup logins', waitlist: 'registration families apply', forecast: 'capacity months openings', contacts: 'parents guardians emergency phone email', messaging: 'email announcements', photos: 'pictures videos', reports: 'export csv' };
+function searchItems() {
+  const it = [];
+  FLAT.forEach(m => it.push({ type: 'Page', title: m.label, sub: 'Go to page', text: m.label + ' ' + (KEYWORDS[m.id] || ''), go: () => { location.hash = m.id; } }));
+  ENROLLED().forEach(k => { const c = D.contacts['c' + k.id] || {}; it.push({ type: 'Child', title: k.n, sub: roomById(k.r).name + ' · ' + fmtAge(ageM(k.b, +todayISO().slice(0, 4), +todayISO().slice(5, 7))) + ' · ' + ST_TEXT[attStatus(k.id)], text: k.n + ' ' + tight(k.n) + ' ' + roomById(k.r).name, go: () => childCard(k.id) });
+    [c.g1name, c.g2name, c.ename].filter(Boolean).forEach(n => it.push({ type: 'Contact', title: n, sub: 'For ' + k.n + ' (' + roomById(k.r).name + ')', text: n, go: () => contactForm(k.id) })); });
+  rows(D.waitlist).forEach(w => it.push({ type: 'Waitlist', title: w.child, sub: (w.status || '') + (w.parent ? ' · ' + w.parent : ''), text: w.child + ' ' + (w.parent || '') + ' ' + (w.email || ''), go: () => { location.hash = 'waitlist'; setTimeout(() => waitlistForm(Object.assign({ id: w.id }, D.waitlist[w.id])), 50); } }));
+  rows(D.staff).forEach(x => it.push({ type: 'Staff', title: x.name, sub: x.role || '', text: x.name + ' ' + (x.role || '') + ' ' + (x.email || ''), go: () => { location.hash = 'configuration'; setTimeout(() => staffForm(Object.assign({ id: x.id }, D.staff[x.id])), 50); } }));
+  rows(D.events).forEach(e => it.push({ type: 'Event', title: e.title, sub: e.type + ' · ' + fmtDate(e.date), text: e.title + ' ' + e.type, go: () => { location.hash = 'calendars'; setTimeout(() => eventForm(Object.assign({ id: e.id }, D.events[e.id])), 50); } }));
+  rows(D.messages).forEach(m => it.push({ type: 'Message', title: m.subject || '(no subject)', sub: 'To ' + (m.toLabel || ''), text: (m.subject || '') + ' ' + (m.body || ''), go: () => { location.hash = 'messaging'; setTimeout(() => showMsg(Object.assign({ id: m.id }, D.messages[m.id])), 50); } }));
+  return it;
+}
+let QRES = [], QSEL = 0;
+function runSearch() {
+  const q = norm($('q').value).trim(), box = $('qres');
+  if (!q) { box.hidden = true; $('q').setAttribute('aria-expanded', 'false'); return; }
+  const qt = q.replace(/ /g, '');
+  QRES = searchItems().map(x => { const t = norm(x.text), ti = norm(x.title); let sc = 0;
+    if (ti === q || tight(x.title) === qt) sc = 100; else if (ti.startsWith(q) || tight(x.title).startsWith(qt)) sc = 60; else if (t.split(' ').some(w => w.startsWith(q))) sc = 40; else if (q.length >= 3 && t.includes(q)) sc = 20;
+    return Object.assign(x, { sc: sc ? sc - (x.type === 'Page' ? 5 : 0) : 0 }); }).filter(x => x.sc).sort((a, b) => b.sc - a.sc).slice(0, 10);
+  QSEL = 0;
+  box.innerHTML = QRES.length ? QRES.map((x, i) => '<button type="button" class="qi' + (i === 0 ? ' on' : '') + '" role="option" data-qi="' + i + '"><span class="qt" style="--qc:' + QCOL[x.type] + '">' + x.type + '</span><span><b>' + esc(x.title) + '</b><span class="muted">' + esc(x.sub) + '</span></span></button>').join('')
+    : '<div class="qempty">Nothing matches "' + esc($('q').value) + '". Try initials like "AD", a parent\'s name, or a page like "billing".</div>';
+  box.hidden = false; $('q').setAttribute('aria-expanded', 'true');
+}
+function pickResult(i) { const x = QRES[i]; if (!x) return; $('q').value = ''; $('qres').hidden = true; $('searchBox').classList.remove('on'); $('q').blur(); x.go(); }
+$('q').addEventListener('input', runSearch);
+$('q').addEventListener('focus', () => { if ($('q').value) runSearch(); });
+$('q').addEventListener('keydown', e => {
+  const opts = $('qres').querySelectorAll('.qi');
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (!opts.length) return; QSEL = (QSEL + (e.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length; opts.forEach((o, i) => o.classList.toggle('on', i === QSEL)); opts[QSEL].scrollIntoView({ block: 'nearest' }); }
+  else if (e.key === 'Enter') { e.preventDefault(); pickResult(QSEL); }
+  else if (e.key === 'Escape') { e.stopPropagation(); $('q').value = ''; $('qres').hidden = true; $('searchBox').classList.remove('on'); $('q').blur(); }
+});
+document.addEventListener('mousedown', e => { const r = e.target.closest('[data-qi]'); if (r) { e.preventDefault(); pickResult(+r.dataset.qi); return; } if (!e.target.closest('#searchBox') && !e.target.closest('#searchBtn')) { $('qres').hidden = true; $('searchBox').classList.remove('on'); } });
+document.addEventListener('keydown', e => { if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && $('modal').hidden) { e.preventDefault(); $('searchBox').classList.add('on'); $('q').focus(); } });
+$('searchBtn').addEventListener('click', () => { const on = $('searchBox').classList.toggle('on'); if (on) $('q').focus(); });
+function childCard(id) {
+  const k = kidById(id), c = D.contacts['c' + id] || {}, rec = attRec(id) || {}, t = todayISO().split('-').map(Number);
+  openView(k.n, '<dl class="facts left"><dt>Room</dt><dd>' + esc(roomById(k.r).name) + '</dd><dt>Age</dt><dd>' + fmtAge(ageM(k.b, t[0], t[1])) + '</dd><dt>' + esc(fmtDate(DAY)) + '</dt><dd>' + stPill(id) + (rec.byIn ? ' <span class="muted small">dropped off by ' + esc(rec.byIn) + '</span>' : '') + '</dd><dt>Parents</dt><dd>' + (esc([c.g1name, c.g2name].filter(Boolean).join(', ')) || '<span class="muted">None on file</span>') + '</dd><dt>Emergency</dt><dd>' + (c.ename ? esc(c.ename) + (c.ephone ? ' · ' + esc(c.ephone) : '') : '<span class="muted">None on file</span>') + '</dd></dl>' +
+    '<div class="mfoot"><span></span><div class="row"><button class="btn" type="button" data-vact="contacts">Contacts</button><button class="btn btn-primary" type="button" data-vact="att">Attendance</button></div></div>',
+    { contacts: () => contactForm(id), att: () => { ACT_ROOM = k.r; closeModal(); location.hash = 'actions'; refresh(); } });
+}
+
 /* ===== Dashboard (home): two charts and a short to-do list ===== */
 const ATT_COLORS = { in: '#2A78D6', out: '#1BAF7A', absent: '#EB6834', expected: '#D4D4D4' };
 function donutSvg(parts, total, big, small) {
@@ -1509,7 +1694,7 @@ function renderDash() {
   const m0 = F.months[0], rooms = F.rooms.map(r => ({ r, n: m0.rooms[r.id].n }));
   const filled = rooms.reduce((s, x) => s + x.n, 0), cap = F.rooms.reduce((s, r) => s + r.licensed, 0);
   $('dEnr').innerHTML = '<p class="muted small" style="margin-bottom:4px">' + filled + ' of ' + cap + ' licensed spaces filled at the end of ' + m0.label + '</p><div class="bars">' + rooms.map(x => { const over = x.n > x.r.cap;
-    return '<div class="bar-row' + (over ? ' over' : '') + '" data-tip="' + esc(x.r.name + ': ' + x.n + ' children, ' + x.r.cap + ' spaces' + (over ? ' (over by ' + (x.n - x.r.cap) + ')' : x.n < x.r.cap ? ' (' + (x.r.cap - x.n) + ' open)' : ' (full)')) + '"><span>' + esc(x.r.name) + '</span><div class="trk"><div class="fil" style="width:' + Math.min(100, x.n / x.r.cap * 100) + '%"></div></div><span class="v">' + x.n + ' / ' + x.r.cap + '</span></div>'; }).join('') + '</div>';
+    return '<div class="bar-row' + (over ? ' over' : '') + '" style="--bc:' + (over ? '#C70A24' : GROUP_COLOR[x.r.runsAs]) + '" data-tip="' + esc(x.r.name + ': ' + x.n + ' children, ' + x.r.cap + ' spaces' + (over ? ' (over by ' + (x.n - x.r.cap) + ')' : x.n < x.r.cap ? ' (' + (x.r.cap - x.n) + ' open)' : ' (full)')) + '"><span>' + esc(x.r.name) + '</span><div class="trk"><div class="fil" style="width:' + Math.min(100, x.n / x.r.cap * 100) + '%"></div></div><span class="v">' + x.n + ' / ' + x.r.cap + '</span></div>'; }).join('') + '</div>' + groupKey;
   const al = alertsList(), rank = { over: 0, wait: 1, info: 2 }, top = al.slice().sort((a, b) => rank[a.lv] - rank[b.lv]).slice(0, 4);
   $('dTodo').innerHTML = top.length ? top.map(a => '<li><span class="dot ' + a.lv + '"></span><span>' + esc(a.t) + '</span><a href="' + a.href + '">View</a></li>').join('') : '<li class="muted">Nothing needs attention.</li>';
   $('dAll').textContent = al.length > top.length ? 'See all ' + al.length + ' in Daily summary' : 'Daily summary';
