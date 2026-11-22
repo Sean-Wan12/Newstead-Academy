@@ -148,7 +148,7 @@ function renderRosters() {
   const s0 = F.months[0]; filterButtons('rosters');
   const imp = isSetupLoc() && SETUP[LOC.id].roster;
   $('rosterActs').innerHTML = isSetupLoc() && ME.role === 'admin' ? '<button class="btn' + (imp ? '' : ' btn-primary') + '" type="button" data-act="roster-import"' + (ROOMS.length ? '' : ' disabled') + '>' + (imp ? 'Import a newer roster' : 'Import Lillio roster') + '</button>' : '';
-  $('rosterLead').textContent = 'Who is in each room at ' + LOC.full + ' today, ' + (imp ? 'from the Lillio export imported on ' + fmtWhen(imp.importedAt) : isSetupLoc() ? 'once its Lillio export is imported' : 'from the Lillio export') + '. Children are shown by initials only.' +
+  $('rosterLead').textContent = 'Who is in each room at ' + LOC.full + ' today, ' + (imp ? 'from the Lillio export imported on ' + fmtWhen(imp.importedAt) : isSetupLoc() ? 'once its Lillio export is imported' : 'from the Lillio export') + '. Children are shown by first name and last-name initial.' +
     (imp && imp.skipped && imp.skipped.length ? ' Not imported, because no room matches: ' + imp.skipped.map(x => x.classroom + ' (' + x.rows + ')').join(', ') + '.' : '');
   const rows = DATA.kids.filter(k => k.r && (filters.rosters === 'all' || k.r === filters.rosters))
     .sort((a, b) => ROOMS.findIndex(r => r.id === a.r) - ROOMS.findIndex(r => r.id === b.r) || (a.b < b.b ? -1 : 1))
