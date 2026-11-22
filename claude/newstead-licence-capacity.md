@@ -37,3 +37,13 @@ All other alternate cells are 0. No room has a kindergarten alternate, so Presch
 ## Open question: current fill
 
 Lillio's projections page counted 166 children across all classrooms and 15 in Toddler 1. The owner's family says rooms are not full. The Lillio count may include part-time, upcoming or not-yet-graduated children. Resolve with the Enrollment (csv) export.
+
+# Newstead Academy Markham
+
+Source: Ontario Ministry of Education public licensed child care search, 2026-11-22.
+
+- Licensee: Newstead Academy Child Care Markham Corp.
+- Address: 120 South Town Centre Blvd, Markham, ON L6G 1C3. Phone (416) 826-9772.
+- Licensed age groups: Infant, Toddler, Preschool. No kindergarten room.
+- Room-by-room capacity, mixed-age approval and alternate capacity: not captured yet. Open the "View Details" page in the search and copy the Primary Capacity, Alternate Capacity and Licence Conditions tables.
+- In the admin site, Markham's rooms are entered under Classrooms and its Lillio Enrollment (csv) is imported under Classroom rosters. The forecast assumes Markham children leave in September of the year they turn 4 (junior kindergarten).
