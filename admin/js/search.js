@@ -1,6 +1,7 @@
 /* ===== Search ===== */
 const QCOL = { Page: '#616161', Child: '#2A78D6', Waitlist: '#C98500', Contact: '#EB6834', Staff: '#1BAF7A', Event: '#E34948', Message: '#6250D6' };
-const norm = t => String(t || '').toLowerCase().replace(/[^a-z0-9 ]/g, '');
+/* Lower case, accents removed (Zoé finds Zoe), letters, digits and spaces only */
+const norm = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, '');
 const tight = t => norm(t).replace(/ /g, '');
 const KEYWORDS = { dashboard: 'home', summary: 'today notifications alerts', actions: 'attendance log check in out nap meal incident', signin: 'kiosk parents drop off pick up', billing: 'invoices fees payments subsidy money', calendars: 'menu food lunch snack holidays closures events', configuration: 'settings staff centre details backup logins', waitlist: 'registration families apply', forecast: 'capacity months openings', contacts: 'parents guardians emergency phone email', messaging: 'email announcements', photos: 'pictures videos', reports: 'export csv' };
 function searchItems() {
@@ -24,7 +25,7 @@ function runSearch() {
     return Object.assign(x, { sc: sc ? sc - (x.type === 'Page' ? 5 : 0) : 0 }); }).filter(x => x.sc).sort((a, b) => b.sc - a.sc).slice(0, 10);
   QSEL = 0;
   box.innerHTML = QRES.length ? QRES.map((x, i) => '<button type="button" class="qi' + (i === 0 ? ' on' : '') + '" role="option" data-qi="' + i + '"><span class="qt" style="--qc:' + QCOL[x.type] + '">' + x.type + '</span><span><b>' + esc(x.title) + '</b><span class="muted">' + esc(x.sub) + '</span></span></button>').join('')
-    : '<div class="qempty">Nothing matches "' + esc($('q').value) + '". Try initials like "AD", a parent\'s name, or a page like "billing".</div>';
+    : '<div class="qempty">Nothing matches "' + esc($('q').value) + '". Try a child\'s first name, a parent\'s name, or a page like "billing".</div>';
   box.hidden = false; $('q').setAttribute('aria-expanded', 'true');
 }
 function pickResult(i) { const x = QRES[i]; if (!x) return; $('q').value = ''; $('qres').hidden = true; $('searchBox').classList.remove('on'); $('q').blur(); x.go(); }
