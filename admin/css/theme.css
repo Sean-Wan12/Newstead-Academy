@@ -1,0 +1,46 @@
+/* ===== Colour and spacing pass ===== */
+:root { --brand: #0E7C66; --brand-soft: #E3F4EF; --s4: 16px; --s5: 24px; }
+body { line-height: 1.55; letter-spacing: 0; word-spacing: normal; }
+h1 { font-size: 22px; letter-spacing: -0.01em; }
+h2 { font-size: 15px; }
+.lead { margin-top: 2px; }
+.stack { gap: 24px; }
+.stack-s { gap: 12px; }
+main { padding-top: calc(var(--topH) + 28px); }
+.panel { padding: 20px; }
+.two, .three { gap: 16px; }
+.tiles { gap: 16px; }
+.list th, .list td { padding: 10px 14px; line-height: 1.5; }
+.feed li { gap: 4px; padding-bottom: 12px; }
+.alerts li { padding-bottom: 14px; gap: 10px; }
+.legend { gap: 10px; }
+.bars { gap: 12px; }
+.todo li { padding: 6px 0; gap: 10px; }
+.btn { gap: 6px; }
+.row { gap: 10px; }
+/* Brand colour */
+.brand .logo { background: var(--brand); color: #FFF; }
+.btn-primary, .btn[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); }
+.btn-primary:hover, .btn[aria-pressed="true"]:hover { background: #0A6553; }
+.menu a[aria-current="page"] { background: #FFFFFF; box-shadow: inset 3px 0 0 var(--brand), 0 1px 0 rgba(0,0,0,.06); }
+.menu a, .menu button { min-height: 34px; }
+.nl { display: inline-flex; align-items: center; gap: 10px; }
+.nico { width: 18px; height: 18px; flex: none; }
+.menu .sub { padding-left: 28px; }
+/* Coloured stat tiles */
+.tile { border-top: 3px solid var(--tc, #D4D4D4); padding: 14px 16px 16px; gap: 4px; }
+.tile:nth-child(1) { --tc: #2A78D6; } .tile:nth-child(2) { --tc: #1BAF7A; } .tile:nth-child(3) { --tc: #EB6834; }
+.tile:nth-child(4) { --tc: #6250D6; } .tile:nth-child(5) { --tc: #E87BA4; } .tile:nth-child(6) { --tc: #EDA100; }
+.counters div { border-top: 3px solid #D4D4D4; padding: 10px 14px; }
+.counters div:nth-child(1) { border-top-color: #EDA100; } .counters div:nth-child(2) { border-top-color: #2A78D6; } .counters div:nth-child(3) { border-top-color: #1BAF7A; } .counters div:nth-child(4) { border-top-color: #008300; } .counters div:nth-child(5) { border-top-color: #A3A3A3; }
+.panel > .row.sb h2::before, .panel > .stack-s > .row.sb h2::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: var(--brand); margin-right: 8px; vertical-align: 1px; }
+/* Charts */
+.bar-row { grid-template-columns: 120px 1fr 64px; }
+.bar-row .fil { background: var(--bc, #2A78D6); }
+.bar-row.over .v::after { content: " over"; font-weight: 600; }
+.stk { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: #EBEBEB; gap: 2px; }
+.stk span { display: block; height: 100%; }
+.keyrow { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); }
+.keyrow i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 6px; vertical-align: -1px; }
+.donut.sm { grid-template-columns: 140px 1fr; gap: 16px; }
+.donut.sm svg { width: 140px; height: 140px; }
