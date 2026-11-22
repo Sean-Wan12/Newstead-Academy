@@ -1,0 +1,24 @@
+/* Modal */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 60; display: grid; place-items: center; padding: var(--s4); }
+.modal[hidden] { display: none; }
+.mbox { background: var(--surface); border-radius: var(--r); width: min(620px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+.mbox form, .mbox .mview { display: flex; flex-direction: column; gap: var(--s4); padding: var(--s4) var(--s5) var(--s5); }
+.mhead { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); border-bottom: 1px solid var(--line); margin: 0 calc(-1 * var(--s5)); padding: 0 var(--s5) var(--s3); }
+.mhead h2 { font-size: 16px; }
+.iconx { border: 0; background: transparent; font-size: 16px; cursor: pointer; width: 32px; height: 32px; border-radius: var(--rs); color: var(--muted); }
+.iconx:hover { background: var(--soft); }
+.fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
+.fgrid .field input, .fgrid .field select, .fgrid .field textarea { width: 100%; }
+.fgrid .wide { grid-column: 1 / -1; }
+.fgrid h3 { grid-column: 1 / -1; margin-top: var(--s2); font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+label.check { display: flex; align-items: center; gap: var(--s2); font-size: 13px; }
+.mfoot { display: flex; justify-content: space-between; gap: var(--s2); align-items: center; border-top: 1px solid var(--line); margin: 0 calc(-1 * var(--s5)); padding: var(--s3) var(--s5) 0; }
+@media (max-width: 560px) { .fgrid { grid-template-columns: 1fr; } }
+
+/* Toast */
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #303030; color: #FFF; padding: var(--s2) var(--s4); border-radius: var(--r); font-size: 13px; z-index: 70; box-shadow: 0 4px 16px rgba(0,0,0,.2); max-width: calc(100% - 32px); }
+.toast.err { background: var(--over); }
+.toast[hidden] { display: none; }
+
+.list.compact { min-width: 0; }
+dl.facts.left dd { text-align: left; font-weight: 500; }
