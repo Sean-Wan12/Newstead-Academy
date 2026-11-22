@@ -1,7 +1,8 @@
 /* ===== Setting up a location from the site (Markham) =====
    Rooms come from the licence's Primary Capacity table. The roster comes from Lillio's
-   Enrollment (csv) report, read in the browser: only initials, birth month, room and dates
-   are kept, never full names. Both are saved in the shared database for that location. */
+   Enrollment (csv) report, read in the browser: only first name, last-name initial, birth month,
+   room and dates
+   are kept, never full last names. Both are saved in the shared database for that location. */
 LOCATION_IDS.filter(l => LOCATIONS[l].source === 'setup').forEach(l => {
   watch('doc', 'loc/' + l + '/setup/rooms', v => {
     SETUP[l].rooms = v && Array.isArray(v.rooms) ? v.rooms.filter(r => RULES[r.lic]).map(r => ({ id: r.id, name: r.name, licName: r.licName || r.name, lic: r.lic, runsAs: r.lic, licensed: +r.licensed || 0 })) : [];
@@ -63,7 +64,16 @@ function parseCsv(text) {
   return out.filter(r => r.some(x => x.trim()));
 }
 const usDate = s => { const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((s || '').trim()); return m ? m[3] + '-' + m[1].padStart(2, '0') + '-' + m[2].padStart(2, '0') : null; };
-const initials = (f, l) => ((f || '').trim().charAt(0) + '.' + ((l || '').trim() ? (l || '').trim().charAt(0) + '.' : '')).toUpperCase();
+/* First name as Lillio has it, plus the last-name initial: 'Emma L.' */
+const displayName = (f, l, letters) => { const first = (f || '').trim().split(/\s+/).join(' '), last = (l || '').trim(), part = last.slice(0, letters || 1); return (first + (last ? ' ' + part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() + '.' : '')).trim() || 'Unnamed child'; };
+/* Two children with the same first name and initial get more letters of the last name: 'Ethan Wa.', 'Ethan We.' */
+function makeUnique(kids, full) {
+  for (let round = 0; round < 12; round++) {
+    const seen = {}; kids.forEach(k => { (seen[k.n] = seen[k.n] || []).push(k); });
+    const clashes = Object.values(seen).filter(g => g.length > 1); if (!clashes.length) return;
+    clashes.forEach(g => g.forEach(k => { const f = full[k.id], letters = k.n.includes(' ') ? k.n.split(' ').pop().replace('.', '').length + 1 : 1; k.n = displayName(f[0], f[1], letters); }));
+  }
+}
 
 /* Turn Lillio's export into the roster the forecast uses */
 function rosterFromCsv(text, rooms, today) {
@@ -72,7 +82,7 @@ function rosterFromCsv(text, rooms, today) {
   const need = ['first name', 'last name', 'dob', 'classroom', 'enroll date', 'grad date'], miss = need.filter(n => col(n) < 0);
   if (miss.length) throw new Error('This doesn\'t look like Lillio\'s Enrollment (csv) report. It needs these columns: First name, Last name, DOB, Classroom, Enroll date, Grad date.');
   const byName = {}; rooms.forEach(r => { byName[r.name.toLowerCase()] = r.id; byName[r.licName.toLowerCase()] = r.id; });
-  const kids = [], plans = [], key = {}, skipped = {};
+  const kids = [], plans = [], key = {}, skipped = {}, full = {};
   t.slice(1).forEach(c => {
     const get = n => (c[col(n)] || '').trim(), first = get('first name'), last = get('last name');
     if (/test/i.test(first + ' ' + last)) return;
@@ -82,18 +92,19 @@ function rosterFromCsv(text, rooms, today) {
     if (!rid) { skipped[cls || '(no classroom)'] = (skipped[cls || '(no classroom)'] || 0) + 1; return; }
     const k = first.toLowerCase() + '|' + last.toLowerCase() + '|' + dob;
     if (en <= today && (!gr || gr >= today)) {
-      const kid = { id: kids.length + 1, n: initials(first, last), b: dob.slice(0, 7), r: rid, s: en.slice(0, 7) };
+      const kid = { id: kids.length + 1, n: displayName(first, last), b: dob.slice(0, 7), r: rid, s: en.slice(0, 7) };
       if (gr) kid.e = gr;
-      kids.push(kid); key[k] = kid.id;
+      kids.push(kid); key[k] = kid.id; full[kid.id] = [first, last];
     } else if (en > today) {
-      plans.push({ k, n: initials(first, last), b: dob.slice(0, 7), r: rid, d: en });
+      plans.push({ k, f: [first, last], n: displayName(first, last), b: dob.slice(0, 7), r: rid, d: en });
     }
   });
   const fin = plans.map(p => {
     let id = key[p.k];
-    if (!id) { id = kids.length + 1; kids.push({ id, n: p.n, b: p.b, r: null, s: p.d.slice(0, 7) }); key[p.k] = id; }
+    if (!id) { id = kids.length + 1; kids.push({ id, n: p.n, b: p.b, r: null, s: p.d.slice(0, 7) }); key[p.k] = id; full[id] = p.f; }
     return { id, r: p.r, d: p.d };
   });
+  makeUnique(kids, full);
   return { asOf: today, kids, plans: fin, skipped: Object.keys(skipped).map(n => ({ classroom: n, rows: skipped[n] })) };
 }
 
@@ -101,7 +112,7 @@ function rosterImportForm() {
   if (!isSetupLoc() || ME.role !== 'admin') return;
   if (!ROOMS.length) { toast('Add the rooms first, so children can be matched to them.', true); return; }
   openForm({ title: 'Import the ' + LOC.name + ' roster', submit: 'Import',
-    intro: 'In Lillio, choose ' + LOC.full + ', open Reports and download Enrollment (csv) with a wide date range. Children are matched to rooms by classroom name. Only initials, birth month, room and dates are kept.',
+    intro: 'In Lillio, choose ' + LOC.full + ', open Reports and download Enrollment (csv) with a wide date range. Children are matched to rooms by classroom name. Only first names, last-name initials, birth month, room and dates are kept.',
     fields: [{ k: 'file', label: 'Enrollment (csv) file', type: 'file', accept: '.csv,text/csv', req: true, wide: true }],
     onSave: async v => {
       if (!v.file) { toast('Choose the file first.', true); return false; }
