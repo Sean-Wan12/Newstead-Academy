@@ -1,0 +1,26 @@
+/* Shopify-admin style: dark top bar, light grey sidebar, centred white-card page. Flat, square-ish, quick. */
+:root {
+  --bg: #F1F1F1; --surface: #FFFFFF; --ink: #303030; --muted: #616161; --line: #E3E3E3; --soft: #F7F7F7;
+  --top: #1A1A1A; --nav: #EBEBEB; --nav-on: #FFFFFF; --nav-hover: #E3E3E3;
+  --primary: #303030; --primary-ink: #FFFFFF; --link: #005BD3; --accent: #005BD3;
+  --open: #29845A; --wait: #8A6116; --over: #C70A24; --full: #F3F3F3;
+  --body: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 32px;
+  --r: 6px; --rs: 4px; --ctl: 32px; --topH: 56px; --navW: 240px;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 400 14px/1.45 var(--body); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { margin: 0; font-weight: 650; }
+h1 { font-size: 20px; line-height: 1.3; }
+h2 { font-size: 14px; line-height: 1.4; }
+h3 { font-size: 14px; line-height: 1.4; }
+p { margin: 0; }
+a { color: var(--link); text-decoration: none; } a:hover { text-decoration: underline; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.lead { color: var(--muted); max-width: 72ch; }
+.stack { display: flex; flex-direction: column; gap: var(--s4); }
+.stack-s { display: flex; flex-direction: column; gap: var(--s3); }
+.row { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
