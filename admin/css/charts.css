@@ -1,0 +1,20 @@
+/* Home charts */
+.donut { display: grid; grid-template-columns: 180px 1fr; gap: var(--s5); align-items: center; }
+.donut svg { width: 180px; height: 180px; display: block; }
+.donut .c1 { font: 650 28px/1 var(--body); fill: var(--ink); }
+.donut .c2 { font: 400 12px/1 var(--body); fill: var(--muted); }
+.legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s2); }
+.legend li { display: grid; grid-template-columns: 12px 1fr auto; gap: var(--s2); align-items: center; font-size: 13px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: block; }
+.legend b { font-weight: 600; }
+.bars { display: flex; flex-direction: column; gap: var(--s2); }
+.bar-row { display: grid; grid-template-columns: 110px 1fr 56px; gap: var(--s3); align-items: center; font-size: 13px; }
+.bar-row .trk { height: 10px; background: #EBEBEB; border-radius: 5px; overflow: hidden; }
+.bar-row .fil { height: 100%; background: #2A78D6; border-radius: 5px; }
+.bar-row.over .fil { background: #C70A24 !important; }
+.bar-row .v { text-align: right; color: var(--muted); }
+.bar-row.over .v { color: var(--over); font-weight: 600; }
+.todo li { display: grid; grid-template-columns: 10px 1fr auto; gap: var(--s2); align-items: baseline; }
+.tip { position: fixed; pointer-events: none; background: #1A1A1A; color: #FFF; font-size: 12px; padding: 4px 8px; border-radius: var(--rs); z-index: 80; white-space: nowrap; }
+.tip[hidden] { display: none; }
+@media (max-width: 560px) { .donut { grid-template-columns: 1fr; justify-items: center; } .bar-row { grid-template-columns: 90px 1fr 48px; } }
