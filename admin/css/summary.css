@@ -1,0 +1,11 @@
+.charts3 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 16px; align-items: stretch; }
+@media (max-width: 1100px) { .charts3 { grid-template-columns: 1fr 1fr; } .charts3 > :first-child { grid-column: 1 / -1; } }
+@media (max-width: 700px) { .charts3 { grid-template-columns: 1fr; } }
+.charts3 .donut.sm { grid-template-columns: 1fr; justify-items: center; gap: 14px; }
+.charts3 .legend { width: 100%; }
+.charts3 .bar-row { grid-template-columns: 110px 1fr 44px; }
+@media (max-width: 860px) {
+  .search { left: 12px; right: auto; width: calc(100vw - 24px); justify-self: auto; }
+  .qi { grid-template-columns: 64px 1fr; }
+}
+.bars + .keyrow { margin-top: 14px; }
