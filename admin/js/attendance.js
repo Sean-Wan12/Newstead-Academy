@@ -51,8 +51,9 @@ function logForm(entry) {
 /* ===== Parent sign-in ===== */
 function renderSignin() {
   roomButtons('siRooms', SI_ROOM, 'siroom', true);
-  const q = ($('siSearch').value || '').toLowerCase().replace(/[^a-z]/g, '');
-  const ks = ENROLLED().filter(k => (SI_ROOM === 'all' || k.r === SI_ROOM) && (!q || k.n.toLowerCase().replace(/[^a-z]/g, '').includes(q))).sort((a, b) => ROOMS.findIndex(r => r.id === a.r) - ROOMS.findIndex(r => r.id === b.r) || a.n.localeCompare(b.n));
+  const letters = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]/g, '');
+  const q = letters($('siSearch').value);
+  const ks = ENROLLED().filter(k => (SI_ROOM === 'all' || k.r === SI_ROOM) && (!q || letters(k.n).includes(q))).sort((a, b) => ROOMS.findIndex(r => r.id === a.r) - ROOMS.findIndex(r => r.id === b.r) || a.n.localeCompare(b.n));
   const c = dayCounts(ENROLLED());
   $('siLead').textContent = fmtDate(DAY, true) + (DAY !== todayISO() ? ' (not today: change the date on the Dashboard)' : '') + '. ' + c.in + ' signed in, ' + c.out + ' signed out. Tap a child to sign them in or out.';
   $('siGrid').innerHTML = ks.length ? ks.map(k => { const s = attStatus(k.id), rec = attRec(k.id) || {};
