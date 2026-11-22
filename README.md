@@ -48,7 +48,7 @@ tools/
 
 ## Children's data stays out of git
 
-`admin/data/*.js` and any `.csv` are git-ignored. They hold initials and birth months, which are still personal records. Build the roster locally and publish it with the site:
+`admin/data/*.js` and any `.csv` are git-ignored. They hold children's first names, last-name initials and birth months. Build the roster locally and publish it with the site:
 
 ```
 python3 tools/make_roster.py path/to/enrollment.csv
