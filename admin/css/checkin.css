@@ -15,7 +15,7 @@
 
 .cigrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
 .cikid { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid #D4D4D4; border-radius: var(--r); padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 0 rgba(26,26,26,.07); }
-.cikid b { font-size: 17px; }
+.cikid b { font-size: 17px; line-height: 1.3; overflow-wrap: anywhere; }
 .cikid.in { border-left-color: var(--open); }
 .cikid.out { border-left-color: #8A8A8A; background: var(--soft); }
 .cikid.absent { border-left-color: #EDA100; background: var(--soft); }
