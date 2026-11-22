@@ -266,7 +266,7 @@
       <section class="view stack" id="view-contacts" hidden>
         <div class="phead">
           <div class="stack-s"><h1>Contacts</h1><p class="lead">Parents, guardians, emergency contacts and who may pick each child up.</p></div>
-          <label class="field inline" for="ctSearch">Search <input type="search" id="ctSearch" placeholder="Initials or name"></label>
+          <label class="field inline" for="ctSearch">Search <input type="search" id="ctSearch" placeholder="Child or parent name"></label>
         </div>
         <div class="row" id="ctRooms"></div>
         <div class="tablebox" id="ctTable"></div>
@@ -301,7 +301,7 @@
       <section class="view stack" id="view-signin" hidden>
         <div class="phead">
           <div class="stack-s"><h1>Parent sign-in</h1><p class="lead" id="siLead"></p></div>
-          <label class="field inline" for="siSearch">Find a child <input type="search" id="siSearch" placeholder="Initials"></label>
+          <label class="field inline" for="siSearch">Find a child <input type="search" id="siSearch" placeholder="First name"></label>
         </div>
         <div class="row" id="siRooms"></div>
         <div class="kiosk" id="siGrid"></div>
@@ -342,7 +342,7 @@
 <aside class="drawer" id="drawer" aria-label="Details for the selected box" aria-hidden="true"></aside>
 
 <!-- Scripts share one global scope and run in this order: rules and engine, page state, saved data, then each page. -->
-<!-- data/richmond-hill.js holds the Richmond Hill roster (initials only). It is published with the site but kept out of git. -->
+<!-- data/richmond-hill.js holds the Richmond Hill roster (first names and last-name initials). It is published with the site but kept out of git. -->
 <script src="js/rules.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/state.js"></script>
