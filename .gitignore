@@ -1,0 +1,6 @@
+# Children's records never go to GitHub: rosters, exports and the data files built from them
+admin/data/*.js
+*.csv
+# Local test output
+*.png
+.DS_Store
