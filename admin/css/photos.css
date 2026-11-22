@@ -1,0 +1,7 @@
+/* Photos */
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--s3); }
+.pcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; display: flex; flex-direction: column; cursor: pointer; text-align: left; padding: 0; font: inherit; color: inherit; }
+.pcard .pimg { aspect-ratio: 4 / 3; background: var(--soft); }
+.pcard img, .pcard video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pcard .pcap { padding: var(--s2) var(--s3); display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.bigmedia { width: 100%; max-height: 60vh; object-fit: contain; background: var(--soft); border-radius: var(--rs); }
