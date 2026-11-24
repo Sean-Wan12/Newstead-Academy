@@ -45,3 +45,5 @@ main { margin-left: var(--navW); padding: calc(var(--topH) + var(--s5)) var(--s5
   main { margin-left: 0; padding: calc(var(--topH) + var(--s4)) var(--s3) var(--s6); }
 }
 @media (max-width: 520px) { .centre span.name, .savenote { display: none; } }
+/* Phones: the location picker and avatar must fit, so the brand shows its logo only */
+@media (max-width: 520px) { .topbar { grid-template-columns: auto minmax(0, 1fr) auto; } .brand { min-width: 0; } .brand .bname, .brand .admin { display: none; } }
