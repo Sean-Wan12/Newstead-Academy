@@ -14,7 +14,7 @@ Pick the location in the top bar. Each one has its own rooms, roster, forecast s
 | Address | 13085 Yonge St, Units 12 and 22 | 120 South Town Centre Blvd |
 | Age groups | Toddler, preschool, kindergarten, school age | Infant, toddler, preschool |
 | Rooms | From the licence, in `admin/js/locations.js` | Entered on the site under **Classrooms** |
-| Roster | `admin/data/richmond-hill.js`, built with `tools/make_roster.py` | Imported on the site under **Classroom rosters** |
+| Roster | Imported on the site under **Classroom rosters** (until then, `admin/data/richmond-hill.js`, built with `tools/make_roster.py`) | Imported on the site under **Classroom rosters** |
 
 ## Who sees what
 
@@ -45,6 +45,14 @@ tools/
   make_roster.py      Lillio Enrollment (csv) -> admin/data/richmond-hill.js
   check_forecast.js   prints the forecast table in the terminal
 ```
+
+## Keeping the roster current
+
+Lillio is the record of who is enrolled. In Lillio, open Reports, download **Enrollment (csv)** for the centre, then in the admin open **Classroom rosters → Import a newer roster**. The import is saved for that location and replaces the built-in Richmond Hill file. Children already on the roster keep the same id, so attendance, contacts and invoices stay with them. The Dashboard and Classroom rosters show **Roster as of** the import date, and flag any room with more children than its licence allows.
+
+## Tests
+
+`tests/run.sh` runs the unit and end-to-end tests. See `tests/README.md`.
 
 ## Children's data stays out of git
 
