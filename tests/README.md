@@ -1,12 +1,18 @@
 # Tests for the Newstead admin
 
-Run everything with one command from the repository root:
+Run everything (the admin site and the new app) with one command from the repository root:
 
 ```
 tests/run.sh
 ```
 
-`tests/run.sh unit` runs only the unit tests. `tests/run.sh e2e` runs only the end-to-end tests, and any extra arguments go to pytest (for example `tests/run.sh e2e -k roster`).
+| Command | Runs |
+|---|---|
+| `tests/run.sh unit` | The admin unit tests only |
+| `tests/run.sh e2e` | The admin end-to-end tests only |
+| `tests/run.sh app` | The app's tests (`tests/app/`) only |
+
+For `e2e` and `app`, any extra arguments go to pytest, for example `tests/run.sh app -k ratio`.
 
 Needs Node 18 or later, Python 3 with `pytest` and `playwright`, and Chrome at `/usr/bin/google-chrome`. Nothing is installed from npm.
 
@@ -27,3 +33,20 @@ Needs Node 18 or later, Python 3 with `pytest` and `playwright`, and Chrome at `
 - `NA_ADMIN=/path/to/other/admin tests/run.sh e2e` runs the end-to-end tests against another copy of the site, for example an older version, to show which regression tests it fails.
 
 Tests named `REGRESSION` reproduce a bug that was found and fixed; `docs/qa/qa-report.md` lists them.
+
+## The app (`app/`)
+
+`tests/app/` tests the new Node app. Each test module seeds its own copy of the app's fake demo data into a temporary folder and starts `app/server.js` on a free port. The server runs with `tests/app/fake_clock.js`, so tests can move its clock (midnight, DST, PIN auto-lock, session expiry). It stops the server and deletes the folder at the end.
+
+| File | Covers |
+|---|---|
+| `unit/engine-port.test.js` | The app's forecast engine and rules equal the admin's on random rosters; ratio status |
+| `test_api_permissions.py` | Every read route for owner, both supervisors, lead, assistant, floater, tablet locked and unlocked, and signed out; refused writes change nothing; IDOR; mass assignment; no hashes in responses |
+| `test_api_auth.py` | Cookies, session fixation, tampered and expired sessions, CSRF and origin checks, JSON-only bodies, malformed and oversized bodies, headers, path traversal, rate limits, PIN unlock and auto-lock, deactivation, tablets, temporary passwords |
+| `test_api_records.py` | Attendance, corrections, sleep and sleep checks, group entries, ratios including 3 to 10 for infants, staff Join and Leave, the dashboard against the records, room moves, Toronto midnight and DST, the forecast |
+| `test_robustness.py` | Writes at the same moment, a crash mid-write, restart persistence, empty states, long text |
+| `test_ui.py` | Admin sections and teacher panel in Chrome, stored markup shown as text, 390, 768 and 1024 px widths, keyboard focus, the PIN pad, a tablet set to another time zone |
+| `test_route_coverage.py` | All 63 API routes are listed with their tests |
+
+`NA_APP=/path/to/app tests/run.sh app` runs them against another copy of the app.
+
