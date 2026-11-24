@@ -1,0 +1,8 @@
+/* Sign-in page */
+.login-page { display: grid; place-items: center; min-height: 100vh; padding: 1rem; background: linear-gradient(160deg, #e3eef6, #f6f7f9); }
+.login-card { background: #fff; width: min(420px, 100%); padding: 1.6rem; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+.login-card h1 { color: var(--brand); }
+.tabs { display: flex; border-bottom: 1px solid var(--line); margin: 1rem 0; }
+.tabs [role=tab] { flex: 1; border: 0; background: none; font: inherit; padding: .6rem; cursor: pointer; border-bottom: 3px solid transparent; color: var(--muted); }
+.tabs [role=tab][aria-selected="true"] { color: var(--brand); border-bottom-color: var(--brand); font-weight: 600; }
+#changeForm h2 { margin-top: .5rem; }
