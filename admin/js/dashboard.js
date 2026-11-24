@@ -16,7 +16,8 @@ function renderDash() {
     '<ul class="legend">' + parts.map(p => '<li><i style="background:' + p.color + '"></i><span>' + p.label + '</span><b>' + p.v + '</b></li>').join('') + '</ul></div>';
   const m0 = F.months[0], rooms = F.rooms.map(r => ({ r, n: m0.rooms[r.id].n }));
   const filled = rooms.reduce((s, x) => s + x.n, 0), cap = F.rooms.reduce((s, r) => s + r.licensed, 0);
-  $('dEnr').innerHTML = '<p class="muted small" style="margin-bottom:4px">' + filled + ' of ' + cap + ' licensed spaces filled at the end of ' + m0.label + '</p><div class="bars">' + rooms.map(x => { const over = x.n > x.r.cap;
+  $('dEnr').innerHTML = '<p class="muted small" id="dRosterAsOf">' + esc(rosterAsOfText()) + '</p>' + overLicensed().map(x => '<p class="note" role="status">' + esc(overLicensedText(x)) + '</p>').join('') +
+    '<p class="muted small" style="margin-bottom:4px">' + filled + ' of ' + cap + ' licensed spaces filled at the end of ' + m0.label + '</p><div class="bars">' + rooms.map(x => { const over = x.n > x.r.cap;
     return '<div class="bar-row' + (over ? ' over' : '') + '" style="--bc:' + (over ? '#C70A24' : GROUP_COLOR[x.r.runsAs]) + '" data-tip="' + esc(x.r.name + ': ' + x.n + ' children, ' + x.r.cap + ' spaces' + (over ? ' (over by ' + (x.n - x.r.cap) + ')' : x.n < x.r.cap ? ' (' + (x.r.cap - x.n) + ' open)' : ' (full)')) + '"><span>' + esc(x.r.name) + '</span><div class="trk"><div class="fil" style="width:' + Math.min(100, x.n / x.r.cap * 100) + '%"></div></div><span class="v">' + x.n + ' / ' + x.r.cap + '</span></div>'; }).join('') + '</div>' + groupKey();
   const al = alertsList(), rank = { over: 0, wait: 1, info: 2 }, top = al.slice().sort((a, b) => rank[a.lv] - rank[b.lv]).slice(0, 4);
   $('dTodo').innerHTML = top.length ? top.map(a => '<li><span class="dot ' + a.lv + '"></span><span>' + esc(a.t) + '</span><a href="' + a.href + '">View</a></li>').join('') : '<li class="muted">Nothing needs attention.</li>';
