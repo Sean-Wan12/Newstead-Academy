@@ -18,11 +18,11 @@ function centreForm() {
 }
 /* A staff member linked to a Claude account goes straight to their main room's check-in when they open the admin */
 async function staffForm(s) {
-  const people = await peopleList();
+  const people = await peopleList(s && s.name);
   const acct = [['', 'Not linked']].concat(people.map(p => [p.id, (p.name || 'Unnamed person') + (p.guest ? ' (guest)' : '')]));
   if (s && s.userId && !people.some(p => p.id === s.userId)) acct.push([s.userId, staffName(s.userId) || 'Linked account']);
   openForm({ title: s ? 'Edit ' + s.name : 'Add a staff member', values: s || { active: true, role: 'RECE' },
-    intro: people.length ? null : (ME.user ? 'To link a Claude account, first share this admin with that person from its claude.ai page. They then appear in the Claude account list.' : 'Account linking works when the admin is opened from its claude.ai page.'),
+    intro: !ME.user ? 'Account linking works when the admin is opened from its claude.ai page.' : 'To link a Claude account, first share this admin with that person from its claude.ai page. If they are not in the Claude account list, save their name as it appears on claude.ai, then open their record again.',
     fields: [{ k: 'name', label: 'Name', req: true }, { k: 'role', label: 'Role', type: 'select', options: ['Supervisor', 'Assistant supervisor', 'RECE', 'Educator', 'Cook', 'Office', 'Other'] },
       { k: 'room', label: 'Main room', hint: 'the room they check in', type: 'select', options: [['', 'None or floating']].concat(ROOM_OPTS()) }, { k: 'userId', label: 'Claude account', type: 'select', options: acct },
       { k: 'phone', label: 'Phone', type: 'tel' }, { k: 'email', label: 'Email', type: 'email' },
