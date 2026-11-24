@@ -25,7 +25,7 @@ function renderDashboard() {
   $('dashLead').textContent = f.enrolled + ' children are enrolled in ' + f.licensed + ' licensed spaces. ' + (f.open0 ? plural(f.open0, 'space is', 'spaces are') + ' open by the end of ' + mon + '.' : 'Every room is full this month.') + (f.jump ? ' The next big change is ' + f.jump.label + ', when ' + f.jump.n + ' spaces are open.' : '');
   const tiles = [
     ['', 'Licensed capacity', f.licensed, plural(ROOMS.length, 'room', 'rooms') + ' on the licence'],
-    ['', 'Enrolled today', f.enrolled, 'From the Lillio export'],
+    ['', 'Enrolled today', f.enrolled, rosterAsOfText()],
     ['is-open', 'Open by end of ' + mon, f.open0, f.open0 ? F.rooms.filter(r => m0.rooms[r.id].open > 0).map(r => r.name + ': ' + m0.rooms[r.id].open).join(' · ') : 'Every room is full'],
     [f.over0.length ? 'is-over' : '', 'Rooms over their limit', f.over0.length, f.over0.length ? f.over0.map(r => r.name).join(', ') : 'None'],
     [f.peak.n ? 'is-wait' : '', 'Most toddlers waiting', f.peak.n, f.peak.n ? 'In ' + f.peak.label : 'No toddler waits']
@@ -34,7 +34,8 @@ function renderDashboard() {
   $('dashRooms').innerHTML = F.rooms.map(r => { const c = m0.rooms[r.id];
     return '<div class="card"><div class="row" style="justify-content:space-between"><h3>' + esc(r.name) + '</h3>' + statusPill(c) + '</div><div><span class="count">' + c.n + '</span> <span class="muted">of ' + c.cap + ' spaces</span></div><div class="bar' + (c.open < 0 ? ' is-over' : '') + '" aria-hidden="true"><i style="width:' + Math.min(100, Math.round(100 * c.n / Math.max(1, c.cap))) + '%"></i></div></div>'; }).join('');
   const alerts = [];
-  f.over0.forEach(r => alerts.push(['over', r.name + ' has ' + m0.rooms[r.id].n + ' children against a limit of ' + r.cap + '.', 'Check the roster in Lillio for a child who has left or moved without an end date.']));
+  overLicensed().forEach(x => alerts.push(['over', x.r.name + ' has ' + x.n + ' children on the roster for ' + x.r.licensed + ' licensed spaces.', 'Check the roster in Lillio for a child who has left or moved rooms without an end date, then import a fresh roster. ' + rosterAsOfText() + '.']));
+  f.over0.filter(r => !overLicensed().some(x => x.r.id === r.id)).forEach(r => alerts.push(['over', r.name + ' has ' + m0.rooms[r.id].n + ' children against a limit of ' + r.cap + '.', 'Check the roster in Lillio for a child who has left or moved without an end date.']));
   const firstWait = F.months.find(s => F.rooms.some(r => s.rooms[r.id].waiting));
   if (firstWait) alerts.push(['wait', 'From ' + firstWait.label + ', toddlers reach 30 months with no preschool space to move into.', 'The backlog peaks at ' + f.peak.n + ' in ' + f.peak.label + '. Preschool rooms stay full until the school year starts.']);
   if (!alerts.length) alerts.push(['', 'Nothing needs attention.', 'Every room is within its limit and no child is waiting to move up.']);
@@ -146,10 +147,11 @@ function renderChildren() {
 }
 function renderRosters() {
   const s0 = F.months[0]; filterButtons('rosters');
-  const imp = isSetupLoc() && SETUP[LOC.id].roster;
-  $('rosterActs').innerHTML = isSetupLoc() && ME.role === 'admin' ? '<button class="btn' + (imp ? '' : ' btn-primary') + '" type="button" data-act="roster-import"' + (ROOMS.length ? '' : ' disabled') + '>' + (imp ? 'Import a newer roster' : 'Import Lillio roster') + '</button>' : '';
-  $('rosterLead').textContent = 'Who is in each room at ' + LOC.full + ' today, ' + (imp ? 'from the Lillio export imported on ' + fmtWhen(imp.importedAt) : isSetupLoc() ? 'once its Lillio export is imported' : 'from the Lillio export') + '. Children are shown by first name and last-name initial.' +
-    (imp && imp.skipped && imp.skipped.length ? ' Not imported, because no room matches: ' + imp.skipped.map(x => x.classroom + ' (' + x.rows + ')').join(', ') + '.' : '');
+  const info = rosterInfo(), imp = info.from === 'import';
+  $('rosterActs').innerHTML = ME.role === 'admin' ? '<button class="btn' + (info.from === 'none' ? ' btn-primary' : '') + '" type="button" data-act="roster-import"' + (ROOMS.length ? '' : ' disabled') + '>' + (info.from === 'none' ? 'Import Lillio roster' : 'Import a newer roster') + '</button>' : '';
+  $('rosterLead').textContent = rosterAsOfText() + '. Who is in each room at ' + LOC.full + ', ' + (imp ? 'from the Lillio export imported on ' + fmtWhen(info.importedAt) : info.from === 'file' ? 'from the Lillio export built into the site' : 'once its Lillio export is imported') + '. Children are shown by first name and last-name initial.' +
+    (info.skipped.length ? ' Not imported, because no room matches: ' + info.skipped.map(x => x.classroom + ' (' + x.rows + ')').join(', ') + '.' : '');
+  $('rosterFlags').innerHTML = overLicensed().map(x => '<li class="chk"><span class="dot over"></span><span>' + esc(overLicensedText(x)) + '</span></li>').join('');
   const rows = DATA.kids.filter(k => k.r && (filters.rosters === 'all' || k.r === filters.rosters))
     .sort((a, b) => ROOMS.findIndex(r => r.id === a.r) - ROOMS.findIndex(r => r.id === b.r) || (a.b < b.b ? -1 : 1))
     .map(k => '<tr><td><b>' + esc(k.n) + '</b></td><td>' + esc(F.rooms.find(x => x.id === k.r).name) + '</td><td>' + monthLabel(k.b, 0) + '</td><td>' + fmtAge(ageM(k.b, s0.y, s0.m)) + '</td><td>' + monthLabel(k.s, 0) + '</td></tr>');
