@@ -50,3 +50,13 @@ document.addEventListener('click', async e => {
   const va = e.target.closest('[data-vact]');
   if (va && MODAL && MODAL.actions && MODAL.actions[va.dataset.vact]) { MODAL.actions[va.dataset.vact](va); return; }
 }, true);
+/* Keep keyboard focus inside an open form or view (Tab used to move behind it, into the page) */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Tab' || $('modal').hidden) return;
+  const f = Array.from($('modal').querySelectorAll('button, [href], input, select, textarea, summary')).filter(x => !x.disabled && x.offsetParent);
+  if (!f.length) return;
+  const a = document.activeElement, first = f[0], last = f[f.length - 1];
+  if (!$('modal').contains(a)) { e.preventDefault(); first.focus(); }
+  else if (e.shiftKey && a === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && a === last) { e.preventDefault(); first.focus(); }
+});
