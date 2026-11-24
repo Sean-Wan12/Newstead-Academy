@@ -18,7 +18,7 @@ function searchItems() {
 let QRES = [], QSEL = 0;
 function runSearch() {
   const q = norm($('q').value).trim(), box = $('qres');
-  if (!q) { box.hidden = true; $('q').setAttribute('aria-expanded', 'false'); return; }
+  if (!q || !canSearch()) { box.hidden = true; $('q').setAttribute('aria-expanded', 'false'); return; }
   const qt = q.replace(/ /g, '');
   QRES = searchItems().map(x => { const t = norm(x.text), ti = norm(x.title); let sc = 0;
     if (ti === q || tight(x.title) === qt) sc = 100; else if (ti.startsWith(q) || tight(x.title).startsWith(qt)) sc = 60; else if (t.split(' ').some(w => w.startsWith(q))) sc = 40; else if (q.length >= 3 && t.includes(q)) sc = 20;
@@ -28,7 +28,7 @@ function runSearch() {
     : '<div class="qempty">Nothing matches "' + esc($('q').value) + '". Try a child\'s first name, a parent\'s name, or a page like "billing".</div>';
   box.hidden = false; $('q').setAttribute('aria-expanded', 'true');
 }
-function pickResult(i) { const x = QRES[i]; if (!x) return; $('q').value = ''; $('qres').hidden = true; $('searchBox').classList.remove('on'); $('q').blur(); x.go(); }
+function pickResult(i) { const x = QRES[i]; if (!x || !canSearch()) return; $('q').value = ''; $('qres').hidden = true; $('searchBox').classList.remove('on'); $('q').blur(); x.go(); }
 $('q').addEventListener('input', runSearch);
 $('q').addEventListener('focus', () => { if ($('q').value) runSearch(); });
 $('q').addEventListener('keydown', e => {
@@ -38,8 +38,8 @@ $('q').addEventListener('keydown', e => {
   else if (e.key === 'Escape') { e.stopPropagation(); $('q').value = ''; $('qres').hidden = true; $('searchBox').classList.remove('on'); $('q').blur(); }
 });
 document.addEventListener('mousedown', e => { const r = e.target.closest('[data-qi]'); if (r) { e.preventDefault(); pickResult(+r.dataset.qi); return; } if (!e.target.closest('#searchBox') && !e.target.closest('#searchBtn')) { $('qres').hidden = true; $('searchBox').classList.remove('on'); } });
-document.addEventListener('keydown', e => { if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && $('modal').hidden) { e.preventDefault(); $('searchBox').classList.add('on'); $('q').focus(); } });
-$('searchBtn').addEventListener('click', () => { const on = $('searchBox').classList.toggle('on'); if (on) $('q').focus(); });
+document.addEventListener('keydown', e => { if (e.key === '/' && canSearch() && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && $('modal').hidden) { e.preventDefault(); $('searchBox').classList.add('on'); $('q').focus(); } });
+$('searchBtn').addEventListener('click', () => { if (!canSearch()) return; const on = $('searchBox').classList.toggle('on'); if (on) $('q').focus(); });
 function childCard(id) {
   const k = kidById(id), c = D.contacts['c' + id] || {}, rec = attRec(id) || {}, t = todayISO().split('-').map(Number);
   openView(k.n, '<dl class="facts left"><dt>Room</dt><dd>' + esc(roomById(k.r).name) + '</dd><dt>Age</dt><dd>' + fmtAge(ageM(k.b, t[0], t[1])) + '</dd><dt>' + esc(fmtDate(DAY)) + '</dt><dd>' + stPill(id) + (rec.byIn ? ' <span class="muted small">dropped off by ' + esc(rec.byIn) + '</span>' : '') + '</dd><dt>Parents</dt><dd>' + (esc([c.g1name, c.g2name].filter(Boolean).join(', ')) || '<span class="muted">None on file</span>') + '</dd><dt>Emergency</dt><dd>' + (c.ename ? esc(c.ename) + (c.ephone ? ' · ' + esc(c.ephone) : '') : '<span class="muted">None on file</span>') + '</dd></dl>' +
