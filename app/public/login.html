@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · Newstead Academy</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/login.css">
+  <script type="module" src="/js/login.js"></script>
+</head>
+<body class="login-page">
+  <main class="login-card">
+    <h1>Newstead Academy</h1>
+    <p class="muted">Child care management · Richmond Hill and Markham</p>
+
+    <div class="tabs" role="tablist" aria-label="How are you signing in?">
+      <button type="button" role="tab" id="tab-staff" aria-controls="staffForm" aria-selected="true">Staff</button>
+      <button type="button" role="tab" id="tab-device" aria-controls="deviceForm" aria-selected="false" tabindex="-1">Classroom tablet</button>
+    </div>
+
+    <form id="staffForm" role="tabpanel" aria-labelledby="tab-staff" novalidate>
+      <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="username" required maxlength="254"></div>
+      <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="200"></div>
+      <button type="submit" class="btn primary block">Sign in</button>
+      <p class="hint">Forgot your password? Ask your supervisor to issue a temporary one.</p>
+    </form>
+
+    <form id="deviceForm" role="tabpanel" aria-labelledby="tab-device" hidden novalidate>
+      <p class="hint">For the shared tablet in a classroom. Your supervisor sets up the classroom login. Staff then unlock it with their own 4-digit PIN.</p>
+      <div class="field"><label for="username">Classroom login</label><input id="username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required maxlength="40"></div>
+      <div class="field"><label for="devpass">Password</label><input id="devpass" name="password" type="password" autocomplete="current-password" required maxlength="200"></div>
+      <button type="submit" class="btn primary block">Sign in this tablet</button>
+    </form>
+
+    <form id="changeForm" hidden novalidate>
+      <h2>Choose a new password</h2>
+      <p class="hint">You signed in with a temporary password. Choose your own to continue (at least 10 characters).</p>
+      <div class="field"><label for="cur">Temporary or current password</label><input id="cur" name="currentPassword" type="password" autocomplete="current-password" required></div>
+      <div class="field"><label for="np">New password</label><input id="np" name="newPassword" type="password" autocomplete="new-password" required minlength="10" maxlength="200"></div>
+      <div class="field"><label for="np2">New password again</label><input id="np2" name="confirm" type="password" autocomplete="new-password" required minlength="10" maxlength="200"></div>
+      <button type="submit" class="btn primary block">Save and continue</button>
+      <button type="button" class="btn link" id="cancelChange">Sign out</button>
+    </form>
+
+    <p id="msg" class="form-error" role="alert" hidden></p>
+  </main>
+</body>
+</html>
