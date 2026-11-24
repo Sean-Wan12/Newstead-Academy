@@ -47,8 +47,29 @@ let LOC = LOCATIONS.rh;
 let ROOMS = [];
 
 function locRooms(l) { return l.source === 'static' ? l.rooms : (SETUP[l.id].rooms || []); }
-function locRoster(l) { return l.source === 'static' ? (window.RH_DATA || EMPTY_ROSTER()) : (SETUP[l.id].roster || EMPTY_ROSTER()); }
+/* A roster imported on the site (Classroom rosters) wins over the file built into the site */
+function locRoster(l) { return SETUP[l.id].roster || (l.source === 'static' && window.RH_DATA) || EMPTY_ROSTER(); }
+/* Where the roster on screen came from, so staff can see how old it is */
+function rosterInfo(l) {
+  l = l || LOC;
+  const imp = SETUP[l.id].roster;
+  if (imp) return { from: 'import', asOf: imp.asOf, importedAt: imp.importedAt, skipped: imp.skipped || [] };
+  if (l.source === 'static' && window.RH_DATA) return { from: 'file', asOf: window.RH_DATA.asOf, skipped: [] };
+  return { from: 'none', asOf: null, skipped: [] };
+}
+function rosterAsOfText(l) {
+  const i = rosterInfo(l);
+  if (i.from === 'none') return 'No Lillio roster imported yet';
+  const days = Math.round((new Date(todayISO() + 'T12:00') - new Date(i.asOf + 'T12:00')) / 864e5);
+  return 'Roster as of ' + fmtDate(i.asOf) + (days > 7 ? ' (' + days + ' days old: import a fresh Enrollment (csv) from Lillio)' : '');
+}
+/* Rooms where today's roster has more children than the licence allows */
+function overLicensed() {
+  return ROOMS.map(r => ({ r, n: ENROLLED().filter(k => k.r === r.id).length })).filter(x => x.n > x.r.licensed);
+}
+const overLicensedText = x => x.r.name + ' has ' + x.n + ' children on the roster for ' + x.r.licensed + ' licensed spaces: check the roster in Lillio for a child who has left or moved rooms without an end date, then import a fresh roster.';
 const isSetupLoc = () => LOC.source === 'setup';
+const canSearch = () => ME.decided && ME.role === 'admin';
 const hasGroup = g => ROOMS.some(r => r.runsAs === g);
 const licensedTotal = () => ROOMS.reduce((s, r) => s + r.licensed, 0);
 
@@ -81,6 +102,7 @@ function renderTopbar() {
   const s = $('locSel');
   s.innerHTML = LOCATION_IDS.map(id => '<option value="' + id + '"' + (id === LOC.id ? ' selected' : '') + '>' + esc(LOCATIONS[id].full) + '</option>').join('');
   s.disabled = ME.role !== 'admin';
+  document.body.classList.toggle('no-search', !canSearch());   // search lists every child, family and staff member: admins only
   s.title = ME.role === 'teacher' ? 'Your account is linked to this location' : 'Choose a location';
   const n = (ME.name || '').trim(), ini = n ? n.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'NA';
   $('avatar').textContent = ini; $('avatar').title = n ? n + (ME.role === 'teacher' ? ' (staff)' : ME.role === 'admin' ? ' (admin)' : '') : '';
