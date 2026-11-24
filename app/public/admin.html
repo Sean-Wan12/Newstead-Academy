@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin · Newstead Academy</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <script type="module" src="/js/admin/main.js"></script>
+</head>
+<body class="admin">
+  <a href="#view" class="skip">Skip to content</a>
+  <header class="a-top">
+    <span class="brand">Newstead Academy</span>
+    <label for="locSel" class="sr-only">Location</label>
+    <select id="locSel"></select>
+    <span class="spacer"></span>
+    <a class="btn sm" href="/teacher">Classroom view</a>
+    <span id="meName" class="small"></span>
+    <button type="button" class="btn sm" id="logoutBtn">Sign out</button>
+  </header>
+  <div class="a-body">
+    <nav class="a-nav" aria-label="Admin sections">
+      <a href="#dashboard" data-nav="dashboard">Dashboard</a>
+      <a href="#children" data-nav="children">Children</a>
+      <a href="#attendance" data-nav="attendance">Attendance</a>
+      <a href="#entries" data-nav="entries">Daily entries</a>
+      <a href="#rooms" data-nav="rooms">Rooms</a>
+      <a href="#forecast" data-nav="forecast">Capacity forecast</a>
+      <a href="#staff" data-nav="staff">Staff and logins</a>
+      <a href="#activity" data-nav="activity">Activity log</a>
+      <a href="#account" data-nav="account">My account</a>
+    </nav>
+    <main id="view" class="a-main" tabindex="-1"><p class="empty">Loading…</p></main>
+  </div>
+</body>
+</html>
