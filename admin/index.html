@@ -24,7 +24,7 @@
 <header class="topbar">
   <div class="row" style="gap:0;flex-wrap:nowrap">
     <button class="iconbtn" type="button" id="menuBtn" aria-controls="rail" aria-expanded="false" aria-label="Open menu">☰</button>
-    <div class="brand"><span class="logo">N</span>Newstead Academy <span class="admin">Admin</span></div>
+    <div class="brand" title="Newstead Academy Admin"><span class="logo">N</span><span class="bname">Newstead Academy</span> <span class="admin">Admin</span></div>
   </div>
   <div class="search" id="searchBox" role="search">
     <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8.5 3a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11zM17 17l-4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -101,6 +101,7 @@
           <div class="stack-s"><h1>Classroom rosters</h1><p class="lead" id="rosterLead"></p></div>
           <div class="row" id="rosterActs"></div>
         </div>
+        <ul class="plain" id="rosterFlags" role="status"></ul>
         <div class="row" data-filter="rosters"></div>
         <div class="tablebox"><table class="list" id="rosterTable"></table></div>
       </section>
@@ -205,7 +206,7 @@
           </div>
           <div class="panel stack-s">
             <div class="row sb"><h2>Attendance</h2><a href="#actions">Take attendance</a></div>
-            <div id="homeAtt"></div>
+            <div id="homeAtt" style="overflow-x:auto"></div>
           </div>
         </div>
         <div class="three">
