@@ -10,7 +10,7 @@ function dayCounts(kids) {
 }
 const ST_TEXT = { in: 'Signed in', out: 'Signed out', absent: 'Absent', expected: 'Not arrived' };
 const ST_PILL = { in: 'open', out: '', absent: 'wait', expected: '' };
-function stPill(id) { const s = attStatus(id), r = attRec(id); return '<span class="pill ' + ST_PILL[s] + '">' + ST_TEXT[s] + (s === 'in' ? ' ' + r.in : s === 'out' ? ' ' + r.out : '') + '</span>'; }
+function stPill(id) { const s = attStatus(id), r = attRec(id); return '<span class="pill ' + ST_PILL[s] + '">' + ST_TEXT[s] + esc(s === 'in' ? ' ' + r.in : s === 'out' ? ' ' + r.out : '') + '</span>'; }
 const logEntries = () => rows(D.logs && D.logs.entries).filter(x => !x.deleted).sort((a, b) => (b.time || '').localeCompare(a.time || '') || (b.at || 0) - (a.at || 0));
 /* ===== Classroom actions ===== */
 function renderActions() {
@@ -39,6 +39,7 @@ function attForm(kid) {
     onDelete: () => setAtt(kid, { in: '', out: '', absent: false, byIn: '', byOut: '', note: '' }), deleteLabel: 'Clear attendance' });
 }
 function logForm(entry) {
+  if (!entry && !roomById(ACT_ROOM)) { toast('Add the rooms first, under Classrooms.', true); return; }
   const ks = ENROLLED().filter(k => k.r === (entry ? entry.room : ACT_ROOM));
   openForm({ title: entry ? 'Edit log entry' : 'Add a log entry for ' + roomById(ACT_ROOM).name, values: entry || { time: nowHM(), type: 'Activity', kid: '' },
     fields: [{ k: 'time', label: 'Time', type: 'time', req: true }, { k: 'type', label: 'Type', type: 'select', options: ['Activity', 'Meal', 'Nap', 'Toileting', 'Note', 'Incident'] },
@@ -57,7 +58,7 @@ function renderSignin() {
   const c = dayCounts(ENROLLED());
   $('siLead').textContent = fmtDate(DAY, true) + (DAY !== todayISO() ? ' (not today: change the date on the Dashboard)' : '') + '. ' + c.in + ' signed in, ' + c.out + ' signed out. Tap a child to sign them in or out.';
   $('siGrid').innerHTML = ks.length ? ks.map(k => { const s = attStatus(k.id), rec = attRec(k.id) || {};
-    return '<button type="button" class="kid ' + s + '" data-si="' + k.id + '"><b>' + esc(k.n) + '</b><span class="small muted">' + esc(roomById(k.r).name) + '</span><span class="st">' + (s === 'in' ? 'In since ' + rec.in : s === 'out' ? 'Left at ' + rec.out : s === 'absent' ? 'Absent' : 'Not here yet') + '</span></button>'; }).join('') : '<p class="muted">No child matches that search.</p>';
+    return '<button type="button" class="kid ' + s + '" data-si="' + k.id + '"><b>' + esc(k.n) + '</b><span class="small muted">' + esc(roomById(k.r).name) + '</span><span class="st">' + esc(s === 'in' ? 'In since ' + rec.in : s === 'out' ? 'Left at ' + rec.out : s === 'absent' ? 'Absent' : 'Not here yet') + '</span></button>'; }).join('') : '<p class="muted">No child matches that search.</p>';
 }
 function signForm(kid) {
   const k = kidById(kid), s = attStatus(kid);
