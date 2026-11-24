@@ -5,6 +5,8 @@
 .btn[aria-pressed="true"], .btn-primary { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }
 .btn-primary:hover, .btn[aria-pressed="true"]:hover { background: #1A1A1A; }
 .btn:focus-visible, .cell:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* Date and time inputs move focus into their own fields, so ring the whole input while it has focus */
+input[type=date]:focus-within, input[type=time]:focus-within, input[type=month]:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
 select, input[type="number"] { height: var(--ctl); padding: 0 var(--s2); border-radius: var(--rs); border: 1px solid #8A8A8A; background: var(--surface); color: var(--ink); font: 400 13px/1 var(--body); }
 label.field { display: flex; flex-direction: column; gap: var(--s1); font-size: 13px; color: var(--ink); }
 
