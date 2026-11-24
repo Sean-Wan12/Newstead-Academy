@@ -7,7 +7,7 @@ Writes admin/data/richmond-hill.js. Each child is kept as first name and last-na
 That file is git-ignored: publish it with the site, never commit it.
 Markham doesn't need this: its roster is imported on the site (Classroom rosters page).
 """
-import csv, json, sys, datetime, pathlib
+import csv, json, re, sys, datetime, pathlib
 
 ROOM_IDS = {'Toddler 1': 'T1', 'Toddler 2': 'T2', 'Toddler 3': 'T3', 'Preschool 1': 'P1', 'Preschool 2': 'P2',
             'Preschool 3': 'P3', 'Kindergarten 2': 'K2', 'Kindergarten 1': 'K1'}
@@ -28,7 +28,7 @@ def display_name(first, last, letters=1):
 
 
 def make_unique(kids, last_names):
-    """Two children with the same first name and initial get more letters of the last name: 'Ethan Wa.', 'Ethan We.'"""
+    """Two children with the same first name and initial get more letters of the last name: 'Milo Wa.', 'Milo We.'"""
     for _ in range(12):
         seen = {}
         for k in kids:
@@ -46,7 +46,7 @@ def make_unique(kids, last_names):
 def build(path, today):
     kids, plans, key, names = [], [], {}, {}
     rows = [r for r in csv.DictReader(open(path, newline='', encoding='utf-8-sig'))
-            if 'test' not in (r['First name'] + ' ' + r['Last name']).lower()]
+            if not re.search(r'\btest\b', r['First name'] + ' ' + r['Last name'], re.I)]   # Lillio's "Test" rows; keeps names like Testa
     later = []
     for r in rows:
         dob, start, end = us_date(r['DOB']), us_date(r['Enroll date']), us_date(r['Grad date'])
