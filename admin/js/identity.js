@@ -16,7 +16,8 @@ LOCATION_IDS.forEach(l => {
   try { if (window.claude && typeof window.claude.use === 'function') u = await window.claude.use('user'); } catch (e) { u = null; }
   ME.user = u;
   if (u) {
-    try { ME.admin = !!(u.isOwner() || u.canEdit()); } catch (e) { ME.admin = false; }
+    // isOwner() and canEdit() resolve promises: a bare call is always truthy and made everyone an admin
+    try { ME.admin = !!((await u.isOwner()) || (await u.canEdit())); } catch (e) { ME.admin = false; }
     try { ME.id = await u.id(); } catch (e) { ME.id = null; }
     try { const p = await u.me(); ME.name = (p && p.name) || ''; } catch (e) {}
   }
@@ -61,10 +62,13 @@ const staffName = id => (id && NAMES[id]) || (id && id === ME.id ? ME.name : '')
 const staffBy = id => id ? (names([id]), '<br><span class="muted small">by ' + esc(staffName(id) || 'staff') + '</span>') : '';
 
 /* People this admin is shared with, for linking staff records to accounts */
-async function peopleList() {
+/* search('') only returns people this page has already seen, so also search the organization by the staff member's name */
+async function peopleList(q) {
   if (!ME.user || !ME.user.search) return [];
-  try { const r = await ME.user.search(''); const list = Array.isArray(r) ? r : (r && (r.results || r.people || r.hits)) || []; list.forEach(p => { if (p.id && p.name) NAMES[p.id] = p.name; }); return list.filter(p => p && p.id); }
-  catch (e) { return []; }
+  const one = async t => { try { const r = await ME.user.search(t); return Array.isArray(r) ? r : (r && (r.results || r.people || r.hits)) || []; } catch (e) { return []; } };
+  const seen = {}, out = [];
+  (await Promise.all([one('')].concat(q && q.trim() ? [one(q.trim())] : []))).flat().forEach(p => { if (p && p.id && !seen[p.id]) { seen[p.id] = 1; out.push(p); if (p.name) NAMES[p.id] = p.name; } });
+  return out;
 }
 function staffLinkedTo(userId, exceptId) {
   let hit = null;
