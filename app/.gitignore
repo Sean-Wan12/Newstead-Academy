@@ -1,0 +1,8 @@
+# Local data for the dev server: users, sessions, children's records. Never commit it.
+.data/
+# Test and Playwright output
+*.png
+test-output/
+node_modules/
+.env
+.env.*
