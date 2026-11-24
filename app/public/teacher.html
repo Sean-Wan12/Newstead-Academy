@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Classroom · Newstead Academy</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/teacher.css">
+  <script type="module" src="/js/teacher/main.js"></script>
+</head>
+<body class="teacher">
+  <a href="#cards" class="skip">Skip to children</a>
+  <header class="t-top">
+    <div class="t-room">
+      <label for="roomSel" class="sr-only">Room</label>
+      <select id="roomSel" hidden></select>
+      <h1 id="roomName">Classroom</h1>
+      <span id="dateLine" class="muted small"></span>
+    </div>
+    <div id="ratio" class="ratio" role="status" aria-live="polite"></div>
+    <div class="t-who">
+      <span id="actorLine" class="small"></span>
+      <button type="button" class="btn sm" id="switchBtn" hidden>Switch staff</button>
+      <button type="button" class="btn sm" id="lockBtn" hidden>Lock</button>
+      <button type="button" class="btn sm" id="clockBtn">Clock in</button>
+      <a class="btn sm" id="adminLink" href="/admin" hidden>Admin</a>
+      <button type="button" class="btn sm" id="accountBtn" hidden>My PIN</button>
+      <button type="button" class="btn sm" id="logoutBtn">Sign out</button>
+    </div>
+  </header>
+
+  <section class="t-bar" aria-label="Actions for selected children">
+    <div class="row">
+      <span id="selCount" class="sel-count" aria-live="polite">No children selected</span>
+      <button type="button" class="btn sm" id="selAll">Select all here</button>
+      <button type="button" class="btn sm" id="selNone">Clear</button>
+    </div>
+    <div class="row actions" id="bulkActions">
+      <button type="button" class="btn act" data-bulk="check-in">Check in</button>
+      <button type="button" class="btn act" data-bulk="check-out">Check out</button>
+      <button type="button" class="btn act" data-bulk="absent">Absent</button>
+      <span class="divider" aria-hidden="true"></span>
+      <button type="button" class="btn act" data-entry="meal">Meal</button>
+      <button type="button" class="btn act" data-bulk="nap-start">Nap start</button>
+      <button type="button" class="btn act" data-bulk="nap-end">Wake up</button>
+      <button type="button" class="btn act" data-entry="toileting">Diaper / toilet</button>
+      <button type="button" class="btn act" data-entry="activity">Activity</button>
+      <button type="button" class="btn act" data-bulk="sleep-check">Sleep check</button>
+      <button type="button" class="btn act" data-entry="note">Note</button>
+      <label for="moreEntry" class="sr-only">More entry types</label>
+      <select id="moreEntry" class="act more"><option value="">More entries…</option></select>
+    </div>
+  </section>
+
+  <nav class="t-filter" aria-label="Show">
+    <button type="button" class="btn sm" data-filter="all" aria-pressed="true">All</button>
+    <button type="button" class="btn sm" data-filter="expected" aria-pressed="false">Not arrived</button>
+    <button type="button" class="btn sm" data-filter="in" aria-pressed="false">Here</button>
+    <button type="button" class="btn sm" data-filter="sleeping" aria-pressed="false">Sleeping</button>
+    <button type="button" class="btn sm" data-filter="out" aria-pressed="false">Gone home</button>
+    <button type="button" class="btn sm" data-filter="absent" aria-pressed="false">Absent</button>
+  </nav>
+
+  <main id="cards" class="cards" tabindex="-1"><p class="empty">Loading…</p></main>
+</body>
+</html>
