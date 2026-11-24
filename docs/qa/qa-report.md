@@ -151,7 +151,7 @@ This is task 1 above. Root cause: `js/locations.js:50` used `window.RH_DATA` for
 
 | Issue | Why not fixed | Recommendation |
 |---|---|---|
-| No database access rules. By default any Contributor (every teacher) can write every shared document: rosters, rooms, staff links, fees, billing. The role checks only change what the screen shows. | Rules are declared at publish time, not in `admin/`. They can only be tested on claude.ai. | Declare `db` rules: `write: "admin"` for `loc/*/setup`, `staff`, `settings`, `billing`, `waitlist`, `contacts`, `messages`; `interact` for `attendance` and `logs`. Then confirm with a Contributor account. |
+| Database access rules are only partly declared. The published site sets `loc/<rh\|mk>/{staff,setup,settings,billing}` to read `view`, write `admin`, so teachers can no longer change rosters, rooms, staff links or billing. Everything else uses the defaults: any Contributor (every teacher) can still write waitlist, contacts and messages. Read `view` on `setup` also means anyone the site is shared with, including people on the welcome page, can read the imported roster. | Rules are declared at publish time, not in `admin/`. They can only be tested on claude.ai. | Add `write: "admin"` for `waitlist`, `contacts` and `messages`. Raise `read` on `setup` and `staff` to `interact`. Then confirm with a Contributor account and with a Viewer. |
 | The roster file `admin/data/richmond-hill.js` is published with the site, so anyone the artifact is shared with (including the welcome-page users) can fetch every child's first name, initial and birth month. | It is a publishing choice. | Now that Richmond Hill can import its roster on the site, stop publishing the file. The site works without it (tested). |
 | Teachers can change attendance for any date with the date picker. | Product decision, not a bug. | If only today should be editable, hide the date for teachers. |
 | `tools/make_roster.py` still renumbers children on each rebuild and counts a same-day room move twice. | `tools/` is a fallback now. Only the "test" filter was fixed there. | Prefer the on-site import, or port the `rosterFromCsv` id and duplicate logic. |
@@ -190,3 +190,193 @@ The end-to-end tests use a synthetic roster (`tests/fixtures/make_fixtures.py`, 
 - **Photo and video uploads** (`assets`), and copying to the clipboard inside the claude.ai frame.
 - **Real Lillio exports for Markham**: classroom names and any extra columns. Only Richmond Hill's export was available.
 - **Real phones and tablets**: Safari on iPad (the likely check-in device), on-screen keyboards, and the native date picker's focus behaviour. The tests ran in desktop Chrome at phone sizes.
+
+
+---
+
+# Phase 2: new app (`app/`)
+
+Date: 23 November 2026. Scope: the new Node app in `app/`: the JSON API (63 routes), the admin panel and the teacher panel. All data is the app's own fake demo seed. Each test module starts its own server on a free port, with its own seeded data folder and a test clock (`tests/app/fake_clock.js`), and stops it afterwards.
+
+## Summary
+
+- **14 bugs found and fixed** in `app/`: 2 high, 8 medium, 4 low. Every fix except A13 has a regression test.
+- **Seen failing before the fix:** A1 (as a probe script), A2–A6, A9–A12 and A14.
+- **Written after the fix:** the tests for A7 and A8 fail without it by construction, but I did not run them against the old code.
+- **Permissions held up well.** All 63 routes were checked for 9 kinds of person: owner, supervisor at each location, lead educator, assistant, floater, tablet locked, tablet unlocked with a PIN, and signed out. No role could write outside its rooms or location. Mass assignment, IDOR (changed ids), forged and tampered cookies, cross-site requests and path traversal were all refused.
+- **The real problems were elsewhere:**
+  - Teachers could read past days through three list endpoints.
+  - A sign-in, or a password reset, at the same moment as a deactivation re-activated the account.
+  - PIN guessing could be made unlimited.
+  - A small set of correctness and layout problems.
+- **Test command:** `tests/run.sh app`. `tests/run.sh` runs the admin and the app.
+- **Results:** app unit tests 3 pass; app API and browser tests 135 pass; 0 fail. The admin suite still passes 97 of 97.
+
+## Bugs found and fixed
+
+### A1. High: a sign-in, password reset or tablet password reset at the same moment as a deactivation undid it
+
+- **Steps to reproduce:** a supervisor deactivates an educator while that educator is signing in (or while another supervisor resets their password). The account ends up active again, and the sign-in gets a working session. In testing this happened 6 times out of 6.
+- **Root cause:** the handlers read the account, ran the slow scrypt check or hash (about 50 ms), then wrote back the whole record they had read, `active: true` included. The affected functions:
+  - `login` and `deviceLogin` (`api/auth.js`): `lastLoginAt` write
+  - `changePassword`, `setOwnPin` (`api/auth.js`)
+  - `resetPassword`, `setPin`, `clearPin` (`api/users.js`)
+  - `resetPassword` (`api/devices.js`)
+- **Fix:** a new `store.update(coll, id, fn)` in `lib/storage/json-file.js:61` changes only the named fields of the current record, atomically. Those handlers now use it after hashing. The interface comment in `production-stub.js` now asks a real adapter for the same atomic update.
+- **Regression tests:** `test_REGRESSION_signing_in_does_not_undo_a_deactivation_made_at_the_same_moment`, `test_REGRESSION_tablet_sign_in_or_password_reset_does_not_undo_turning_a_tablet_off`, `test_REGRESSION_password_reset_does_not_undo_a_concurrent_deactivation`.
+
+### A2. High: PIN guessing on a tablet was effectively unlimited
+
+- **Steps to reproduce:** on a classroom tablet, guess a supervisor's PIN 4 times, unlock with your own PIN, and repeat. The tablet never locks, so any educator can find a supervisor's PIN and record under their name.
+- **Root cause:** `pinUnlock` in `api/auth.js` reset the tablet's wrong-PIN counter after any correct PIN.
+- **Fix:** a correct PIN no longer clears the tablet's count (`api/auth.js:136`). The README's rule, "5 wrong PINs on a tablet locks PIN entry for 5 minutes", now holds.
+- **Regression test:** `test_REGRESSION_pin_guessing_is_not_reset_by_a_correct_pin_of_another_person`.
+
+### A3. Medium: educators and tablets could read other days' rosters, attendance and staff shifts
+
+- **Steps to reproduce:** as an educator, call `GET /api/children?location=rh&date=2026-10-01`, or `/api/attendance?...&date=<past>`, or `/api/staff-attendance?...&date=<past>`. Each returns that day's records for their rooms. This includes children who have since moved to other rooms, with their medical and allergy notes. Entries, the timeline and room status were already limited to today.
+- **Root cause:** the `list` functions in `api/children.js`, `api/attendance.js` and `api/staff-attendance.js` accepted any `date`.
+- **Fix:** `checkReadDate()` (`api/_util.js:20`), so non-supervisors can read today only.
+- **Regression tests:** `test_read_access[...date=...]` (5 cases) in `test_api_permissions.py`, and `test_midnight_starts_a_new_day_in_toronto`.
+
+### A4. Medium: a child checked in and then moved to another room from today vanished from both rooms' "here" count and ratio
+
+- **Steps to reproduce:** check a child in, then place them in another room starting today.
+  - Neither room counts the child as here, so the ratio check undercounts.
+  - The new room's teacher sees the child as "not arrived", and "Check in" fails with "already checked in".
+- **Root cause:** `roomStatus` (`api/dashboard.js`) and the attendance list matched attendance by the room stored at check-in, while counting children by today's placement.
+- **Fix:** the dashboard and room status match by child (`api/dashboard.js:18`). The attendance list uses each child's placement on that date (`api/attendance.js:35`).
+- **Regression test:** `test_REGRESSION_child_moved_today_is_counted_in_the_new_room`.
+
+### A5. Medium: editing an entry lost what it said before
+
+- **Steps to reproduce:** an educator records an incident, a supervisor reviews it, then the educator edits the description. Only "edited by X at T" was kept, so the original wording of a reviewed incident report was gone.
+- **Root cause:** `update` in `api/entries.js` pushed `{ at, by }` only.
+- **Fix:** each edit also keeps `before: { time, data }` (`api/entries.js:91`).
+- **Regression test:** `test_REGRESSION_editing_an_entry_keeps_what_it_said_before`.
+
+### A6. Medium: a removed tablet login's username could not be reused
+
+- **Steps to reproduce:** remove the classroom login `rh-spare-tab`, then create a new one with the same username. The new tablet can never sign in (401).
+- **Root cause:** `deviceLogin` found the first device with that username, which is the deleted one.
+- **Fix:** skip deleted devices (`api/auth.js:65`). Staff sign-in got the same guard.
+- **Regression test:** `test_REGRESSION_a_removed_tablet_login_name_can_be_reused`.
+
+### A7. Medium: the current password could be guessed with no limit through a signed-in session
+
+- **Root cause:** `PUT /api/auth/pin` and `POST /api/auth/password` checked the current password with no attempt limit.
+- **Fix:** wrong guesses now count toward the account's sign-in lock (`checkCurrentPassword`, `api/auth.js:43`).
+- **Regression test:** `test_REGRESSION_current_password_cannot_be_guessed_through_a_signed_in_session`.
+
+### A8. Medium: the teacher panel used the tablet's own clock and time zone
+
+- **Steps to reproduce:** on a tablet set to UTC, at 8:30 pm in Toronto, start a sleep. The sleep is recorded at 01:30. The admin's "Check in for someone" default time and the teacher card's "Not scheduled today" weekday had the same problem.
+- **Root cause:** `nowHM()` in `public/js/teacher/actions.js` and `public/js/admin/views/attendance.js`, and `new Date().getDay()` in `teacher/cards.js`, used device-local time.
+- **Fix:** shared `nowHM()` and `todayKey()` in `public/js/shared/format.js:65`, using `America/Toronto`.
+- **Regression test:** `test_REGRESSION_tablet_in_another_time_zone_records_toronto_times`.
+
+### A9. Medium: adding a child with a placement in another location's room saved half a record
+
+- **Steps to reproduce:** call `POST /api/children` with `enrollment.roomId` at the other location. The request fails (400), but the child is already saved, with no room.
+- **Root cause:** `create` in `api/children.js` saved the child before `createEnrollment` checked the room.
+- **Fix:** check the room's location, archived state and dates before saving anything (`api/children.js:77`).
+- **Regression test:** `test_REGRESSION_child_is_not_saved_when_its_first_placement_is_refused`.
+
+### A10. Medium: the admin panel scrolled sideways on tablets and phones
+
+- **Steps to reproduce:** at 768 px and 1024 px, the Rooms and Staff tables pushed the page wider than the screen (1122 px at 1024). At 390 px every table did, and long room names in the filter dropdowns did too.
+- **Root cause:** tables had no scroll container, and the selects had no width limit (`public/css/admin.css`).
+- **Fix:** below 1280 px, list tables scroll inside the page. Filter selects and the location picker are capped at the screen width (`admin.css:36–40`).
+- **Regression test:** `test_no_sideways_scroll[phone-390|tablet-768|tablet-landscape-1024]`. It runs after the long-name seed in `test_stored_markup_is_shown_as_text_everywhere`.
+
+### A11. Low: removing an educator from a room did not end their PIN unlock on that room's tablet
+
+- **Root cause:** `update` in `api/users.js` only cleared the tablet unlock when someone was deactivated or their role or locations changed. A room change did not clear it.
+- **Fix:** a room change clears it too (`api/users.js:91`).
+- **Regression test:** `test_REGRESSION_removing_a_teacher_from_a_room_ends_their_unlock_on_its_tablet`.
+
+### A12. Low: an oversized request body got a reset connection instead of a 413
+
+- **Root cause:** `readJsonBody` (`lib/http.js`) destroyed the request as soon as it passed 100 KB.
+- **Fix:** it now reads and discards the rest, then returns 413 (`lib/http.js:33`).
+- **Regression test:** `test_REGRESSION_oversized_body_gets_413_not_a_reset_connection`.
+
+### A13. Low: the teacher panel's date line stayed on yesterday after midnight
+
+- **Root cause:** `/api/meta` was loaded once.
+- **Fix:** the 30-second refresh updates `today` (`public/js/teacher/main.js:127`).
+- **Regression test:** none for the display itself. The server's own switch to the new day is tested by `test_midnight_starts_a_new_day_in_toronto`.
+
+### A14. Low (accessibility): no visible focus on date inputs
+
+- **Steps to reproduce:** Tab to the dashboard date picker. No focus ring shows.
+- **Root cause:** Chrome moves focus into the date input's inner fields, so `:focus-visible` never matched the input.
+- **Fix:** a `:focus-within` ring on date, time and month inputs (`public/css/base.css:20`).
+- **Regression test:** `test_keyboard_focus_is_visible[admin]`.
+
+## Checked and found correct
+
+| Area | What was checked | Tests |
+|---|---|---|
+| Role and room limits | 50 read cases × 9 roles; 51 refused writes × their roles, with a before-and-after check that nothing changed; lists filtered to the person's rooms; supervisors cannot reach the other location, create supervisors or owners, or manage other supervisors or the owner | `test_api_permissions.py` |
+| Records outside a teacher's room or day | check-in, check-out, absent and undo for other rooms, other locations and past days; tablets without a PIN | `test_teacher_and_tablet_cannot_record_for_other_rooms_or_past_days` |
+| Mass assignment | `id`, `deleted`, `createdBy`, `locationId`, `roomId`, `passwordHash`, `pinHash`, `mustChangePassword`, `role`, and `username` on tablets, all ignored or refused | `test_mass_assignment_is_ignored` |
+| Sessions | HttpOnly and SameSite=Strict; new token at sign-in (no fixation); tampered, forged, truncated and signed-out cookies refused; 4-hour idle expiry | `test_api_auth.py` |
+| CSRF and origin | foreign, `null` and wrong-port origins refused; no Origin and no Sec-Fetch-Site refused; non-JSON bodies get 415 | `test_cross_site_writes_are_refused`, `test_writes_must_be_json` |
+| Rate limits, PIN | account lock after 5 failures; unknown email and wrong password give the same answer; PIN auto-lock 10 minutes after the last write (reads do not extend it); Lock button; PIN only for that tablet's staff | `test_api_auth.py` |
+| Losing access | deactivated users, disabled, reset and removed tablets, and password resets all take effect on the next request | `test_api_auth.py` |
+| Temporary passwords | every route except change-password returns `password_change_required` | `test_temporary_password_must_be_changed_first` |
+| Secrets | no `scrypt$`, `passwordHash`, `pinHash` or demo password in any GET (all roles) or write response | `test_no_endpoint_returns_a_password_hash_or_secret`, `test_write_responses_never_include_hashes` |
+| Static files | 11 traversal forms, including encoded `..`, backslash and NUL, are refused | `test_static_files_cannot_escape_public` |
+| Headers | CSP `'self'` with no `unsafe-inline`, `frame-ancestors 'none'`, nosniff, X-Frame-Options DENY, `no-store` on the API | `test_security_headers_on_pages_and_api` |
+| Malformed input | cut-off JSON, non-objects, bad UTF-8, 1e400, 3000-deep nesting, `__proto__` keys | `test_malformed_json_gives_400`, `test_deeply_nested_and_prototype_keys_are_ignored` |
+| XSS | markup and quotes in 30+ stored fields (child, contact, room, staff, tablet, location, every entry type, sleep checks, review notes, attendance people and correction reasons) shown as text in every admin section, the child detail, the forecast, teacher cards and the timeline | `test_stored_markup_is_shown_as_text_everywhere` |
+| Attendance | check-in, check-out, absent, undo; double check-in; check-out before check-in, or before the check-in time; absent after attending; arriving after absent; corrections need a reason and keep before-values; audit | `test_api_records.py` |
+| Sleep and entries | sleep start, a second start refused, sleep checks, wake before start refused, timeline order; group entries all-or-nothing; fluids for infant rooms only | `test_api_records.py` |
+| Ratios | 3 to 10 infant ratio (3 infants need 1 staff, 4 need 2, 10 need 3), 1 to 5, 1 to 8, 1 to 13; Join and Leave room; a room switch closes the earlier shift | `test_staff_join_leave_and_infant_ratio_3_to_10`, `unit/engine-port.test.js` |
+| Dashboard | every room's placed, in, out, absent and staff numbers match the attendance, placement and shift records; totals; 167 licensed | `test_dashboard_numbers_match_the_records` |
+| Dates | Toronto midnight, DST spring forward (01:59 and 03:01, 14 Mar 2027), fall back (01:30, 7 Nov 2027), year end | `test_midnight_*`, `test_dst_and_year_end_use_toronto_wall_clock` |
+| Room moves | a future move ends the old placement the day before; the child switches rooms on the day; overlapping placements refused | `test_future_room_move_ends_old_placement_and_switches_on_the_day` |
+| Forecast | the app engine equals `admin/js/engine.js` on 300 random rosters (only the "recorded in Lillio / enrollment" wording differs); month 0 equals placements; booked end dates and starts appear | `unit/engine-port.test.js`, `test_forecast_first_month_matches_placements_and_booked_changes` |
+| Store robustness | 115 tablet writes at once all saved and kept after restart; SIGKILL during writes leaves every collection file valid JSON; sessions survive a restart; empty rooms, a Saturday and Markham with no data | `test_robustness.py` |
+| UI | every admin section for owner and Markham supervisor, the teacher panel and the tablet with no console errors; the PIN pad unlocks and records; visible keyboard focus in both panels | `test_ui.py` |
+| Route coverage | all 63 routes are listed with their tests; a new route fails until it is added | `test_route_coverage.py` |
+
+## Found but not fixed
+
+| Issue | Why not fixed | Recommendation |
+|---|---|---|
+| Five wrong passwords lock any account for 15 minutes, so anyone who knows the owner's email can keep them locked out. | This is the README's chosen policy, and the usual trade-off against guessing. | Add a growing delay, or lock per account and address together, before going live. |
+| Rate limits are in memory. A restart clears them, and on serverless hosting each instance counts separately. With `TRUST_PROXY=1`, the IP comes from the first `X-Forwarded-For` entry, which some proxies let the client set. | Already noted in the README. It needs the production store. | Keep counters in the database; use the proxy's own client-IP header. |
+| Supervisors can set an educator's PIN, so they know it and can record as that person on a tablet. | Product decision (README decision 5). | Let supervisors only clear PINs, and have staff set their own. |
+| Most writes still read a record, change it and write it back. For attendance and entries, two writes to the same record at the same instant could lose one. Not seen in testing, including 10 simultaneous sleep checks on one child. | Fixing it everywhere means changing the storage interface for every handler. | When the production database is chosen, use transactions or `update()` for attendance and entries. |
+| The JSON store rewrites a whole collection file on every write. `entries.json` will grow by thousands of records a month, and every write gets slower. | Development store only. | The production database. |
+| A staff shift still open at midnight stays open on the previous date. | Rare, and only affects that day's report. | Close open shifts at the end of the day, or show them to supervisors. |
+| No HSTS header. | Hosting concern (HTTP in development). | Send `Strict-Transport-Security` in production. |
+| A crash can leave a `*.tmp` file in the data folder. It is harmless: the next write replaces it. | Cosmetic. | Delete stray `*.tmp` files at start-up. |
+
+## Test suite (app)
+
+Command: `tests/run.sh app`. Extra arguments go to pytest, for example `tests/run.sh app -k ratio`. `tests/run.sh` runs the admin and the app.
+
+| File | Tests | Result |
+|---|---|---|
+| `tests/app/unit/engine-port.test.js` (`node --test`) | 3 | 3 pass |
+| `tests/app/test_api_permissions.py` | 57 | 57 pass |
+| `tests/app/test_api_auth.py` | 40 | 40 pass |
+| `tests/app/test_api_records.py` | 18 | 18 pass |
+| `tests/app/test_robustness.py` | 9 | 9 pass |
+| `tests/app/test_ui.py` (Playwright, Chrome) | 10 | 10 pass |
+| `tests/app/test_route_coverage.py` | 1 | 1 pass |
+| **Total** | **138** | **138 pass, 0 fail** (about 75 seconds) |
+
+The admin suite (`tests/run.sh unit` and `tests/run.sh e2e`) still passes 97 of 97, so the full `tests/run.sh` is **235 pass, 0 fail**. `NA_APP=<copy of app>` runs the app tests against another copy. Every server a test starts is stopped and its temporary data folder deleted when the module ends.
+
+## Risks that could not be tested here
+
+- **Production storage, hosting and sessions:**
+  - The production database adapter is a deliberate stub.
+  - Real hosting has not been tested: Vercel functions, `SESSION_SECRET`, `APP_ORIGIN`, `TRUST_PROXY`, `__Host-` cookies over HTTPS.
+  - Neither has multi-instance behaviour: rate limits and concurrent writes.
+- **Real devices:** iPad Safari and Android tablets (PIN pad, `<dialog>`, on-screen keyboard), and printing.
+- **Screen readers:** checked by role and label in code only; not tested with VoiceOver or NVDA.
