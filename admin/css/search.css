@@ -22,3 +22,4 @@
   .search.on { display: flex; }
   .search input { color: var(--ink); }
 }
+body.no-search .search, body.no-search .sbtn, body.no-search .qres { display: none; }
