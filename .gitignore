@@ -4,3 +4,4 @@ admin/data/*.js
 # Local test output
 *.png
 .DS_Store
+__pycache__/
