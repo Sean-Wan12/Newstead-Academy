@@ -14,7 +14,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 function ym(s) { const p = s.split('-'); return { y: +p[0], m: +p[1] }; }
 function ageM(birth, y, m) { const b = ym(birth); return (y - b.y) * 12 + (m - b.m); }
 function youngLimit(room, cap) { return Math.round(RULES[room.lic].youngShare * cap + 1e-9); }
-function staffNeeded(children, rule) { return Math.ceil(children / rule.ratio - 1e-9); }
+function staffNeeded(children, rule) { return Math.max(0, Math.ceil(children / rule.ratio - 1e-9)); }
 function fmtAge(m) { const y = Math.floor(m / 12), r = m % 12; return y ? y + 'y ' + r + 'm' : r + 'm'; }
 
 if (typeof module !== 'undefined') module.exports = { RULES, AGE_GROUPS, MONTHS, ym, ageM, youngLimit, staffNeeded, fmtAge };
