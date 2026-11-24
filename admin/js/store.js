@@ -34,13 +34,18 @@ function watch(kind, path, cb) {
 function localNotify() { watchers.forEach(w => w.cb(localRead(w))); }
 /* After a location change: detach every watcher and attach it again at the new location's paths */
 function rebindStore() {
+  // Forget the old location's records, so its contacts, waitlist or staff never show (or get saved) under the new one
   D.att = null; D.logs = null;
+  Object.keys(D).forEach(k => { if (k !== 'att' && k !== 'logs') D[k] = {}; });
   watchers.forEach(w => { if (w.unsub) { w.unsub(); w.unsub = null; } });
   if (STORE.mode !== 'loading') watchers.slice().forEach(attach);
 }
 const chains = {};
 function queue(path, fn) { const p = (chains[path] || Promise.resolve()).then(fn, fn); chains[path] = p.catch(() => {}); return p; }
 function isObj(v) { return v && typeof v === 'object' && !Array.isArray(v); }
+let MERGE_RECHECK_MS = 400;
+/* Does document a already hold every value in b? */
+function contains(a, b) { return Object.keys(b).every(k => isObj(b[k]) ? isObj(a && a[k]) && contains(a[k], b[k]) : JSON.stringify(a && a[k]) === JSON.stringify(b[k])); }
 function deepMerge(a, b) { const o = Object.assign({}, a || {}); Object.keys(b).forEach(k => { o[k] = isObj(b[k]) && isObj(o[k]) ? deepMerge(o[k], b[k]) : b[k]; }); return o; }
 function writeFail(e) {
   const c = e && e.code;
@@ -59,7 +64,16 @@ function merge(path, data) {
   if (STORE.mode !== 'db') { LOCAL[path] = deepMerge(LOCAL[path], data); saveLocal(); localNotify(); return Promise.resolve(true); }
   return queue(path, async () => {
     try { await STORE.db.doc(path).update(data); }
-    catch (e) { if (e && e.code === 'invalid_argument') { const s = await STORE.db.doc(path).get(); if (!s.exists) return STORE.db.doc(path).set(data); } throw e; }
+    catch (e) {
+      if (!(e && e.code === 'invalid_argument')) throw e;
+      const s = await STORE.db.doc(path).get(); if (s.exists) throw e;
+      // First write of the day: set() replaces the whole document, so another device creating it at the
+      // same moment (two rooms checking in at 7:00) can overwrite this write. Check, and merge it again if so.
+      await STORE.db.doc(path).set(data);
+      await new Promise(r => setTimeout(r, MERGE_RECHECK_MS + Math.random() * MERGE_RECHECK_MS));
+      const after = await STORE.db.doc(path).get();
+      if (!after.exists || !contains(after.data(), data)) await STORE.db.doc(path).update(data);
+    }
   }).then(() => true, writeFail);
 }
 function remove(path) {
