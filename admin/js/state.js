@@ -10,7 +10,7 @@ let opts = JSON.parse(JSON.stringify(DEF)), F = null, sel = null, filters = { ch
 let DATA = { asOf: '2026-11-16', kids: [], plans: [] };
 let ACT_ROOM = null, CI_ROOM = null, SI_ROOM = 'all', CT_ROOM = 'all', PH_ROOM = 'all';
 const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const kidsById = {};
 function setData(d) {
   DATA = d;
